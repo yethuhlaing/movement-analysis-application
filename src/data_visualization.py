@@ -6,7 +6,7 @@ COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class Main(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.place(x = 0, y = 0, relwidth = 1)
+        self.pack(expand=True, fill="both")
 
         heading = tk.Label(self,text="My Project",font= font.Font(size=25), padx=20, justify="left")
         heading.pack(anchor=tk.W)
@@ -146,7 +146,37 @@ class SummaryEntry(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.pack(expand = True, fill = 'both')
-        label = ttk.Label(self,text="Hello")
-        label.pack()
+        self.create_table()
     def create_table(self):
-        pass
+        table = ttk.Treeview(self, columns = (1,2,3,4,5,6), show = 'headings')
+        table.pack()
+
+        heading = ["Movement", 'Evaluation Time', 'Minimum No', 'Minimum Frequency', 'Maximum No.', 'Minimum Frequency']
+        movement = ['Bob', 'Maria', 'Alex', 'James', 'Susan', 'Henry', 'Lisa', 'Anna', 'Lisa']
+        evaluation_Time = ['Smith', 'Brown', 'Wilson', 'Thomson', 'Cook', 'Taylor', 'Walker', 'Clark']
+        min_number = ['Bob', 'Maria', 'Alex', 'James', 'Susan', 'Henry', 'Lisa', 'Anna', 'Lisa']
+        min_frequency = ['Bob', 'Maria', 'Alex', 'James', 'Susan', 'Henry', 'Lisa', 'Anna', 'Lisa']
+        max_number = ['Smith', 'Brown', 'Wilson', 'Thomson', 'Cook', 'Taylor', 'Walker', 'Clark']
+        max_frequency = ['Bob', 'Maria', 'Alex', 'James', 'Susan', 'Henry', 'Lisa', 'Anna', 'Lisa']
+        table_data = [movement,evaluation_Time, min_number, min_frequency, max_number, max_frequency]
+
+        COLOR = '#%02x%02x%02x' % (174, 239, 206)
+        table.tag_configure('oddrow', background='white')
+        table.tag_configure('evenrow', background=COLOR)
+        table.tag_configure("heading", font=('TkDefaultFont', 10, 'bold'))
+
+
+        # Add the header row to the Treeview
+        table.insert("", "end", text="", values=heading, tags="heading")    
+
+        for i, row in enumerate(table_data):
+            # Determine the tag for the row
+            tag = 'oddrow' if i % 2 == 0 else 'evenrow'
+
+            # Insert the row into the Treeview
+            table.insert('', 'end', values=row, tags=(tag,))
+            
+
+        scrollbar_table = ttk.Scrollbar(self, orient = 'vertical', command = table.yview)
+        table.configure(yscrollcommand = scrollbar_table.set)
+        scrollbar_table.place(relx = 1, rely = 0, relheight = 1, anchor = 'ne')
