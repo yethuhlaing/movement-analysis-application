@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk
-from data_visualization import Main
+from data_visualization import DataVisualization
 
 
 
@@ -20,7 +20,7 @@ class App(tk.Tk):
         self.iconphoto(False, p1)
     
         #Data Visualization Page
-        self.main = Main(self)
+        self.main = DataVisualization(self)
         self.mainloop()
 
 
