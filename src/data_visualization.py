@@ -13,7 +13,7 @@ class Main(ttk.Frame):
 
         InfoEntry(self)
         VisualizationEntry(self)
-
+        SummaryEntry(self)
 
 class InfoEntry(ttk.Frame):
     def __init__(self, parent):
@@ -83,10 +83,11 @@ class VisualizationEntry(ttk.Frame):
         # Create a scrollbar widget
         scrollbar = ttk.Scrollbar(self, orient = 'vertical', command=canvas.yview)
         scrollbar.pack(side=tk.RIGHT, fill="y")
-        
+
+
         # Configure canvas scrolling
         canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion= canvas.bbox("all")))
 
         # Create a frame inside the canvas to hold the content
         frame = tk.Frame(canvas)
@@ -108,9 +109,9 @@ class GraphEntry(ttk.Frame):
 
     def create_widget(self):
         # Create three frames
-        heading_frame = tk.Frame(self, bg="red",padx=10, pady=10, height=50, width=1000)
-        graph_frame = tk.Frame(self, bg="green", padx=10, pady=10, height=200, width= 1000)
-        information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200, width= 1000)
+        heading_frame = tk.Frame(self, bg="red",padx=50, pady=10, height=50,width=1500)
+        graph_frame = tk.Frame(self, bg="green", padx=50, pady=10, height=200,width=1500 )
+        information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200,width=1500)
 
         # Configure grid layout manager
         self.grid_rowconfigure(0, weight=1)
@@ -141,3 +142,11 @@ class GraphEntry(ttk.Frame):
         PieChart = tk.Frame(parentFrame, bg='blue', height=100)
         PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
 
+class SummaryEntry(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.pack(expand = True, fill = 'both')
+        label = ttk.Label(self,text="Hello")
+        label.pack()
+    def create_table(self):
+        pass
