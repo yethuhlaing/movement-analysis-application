@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk
-from tkinter.messagebox import showinfo
+from data_visualization import DataVisualization
+
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -16,10 +18,12 @@ class App(tk.Tk):
         # logo
         p1 = PhotoImage(file = 'lab-logo.png')
         self.iconphoto(False, p1)
-        
+    
+        #Data Visualization Page
+        self.main = DataVisualization(self)
+        self.mainloop()
 
-    def button_clicked(self):
-        showinfo(title='Information', message='Hello, Tkinter!')
+
 
 if __name__ == "__main__":
     app = App()
