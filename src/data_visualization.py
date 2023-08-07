@@ -4,16 +4,11 @@ from tkinter import PhotoImage, ttk, font
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 
 class DataVisualization(ttk.Frame):
-    def __init__(self, parent,project_name, student_name, height, weight):
+    def __init__(self, parent,data):
         tk.Frame.__init__(self, parent, bg="white")
         self.pack(expand=True, fill="both")
-        #example
-        self.project_name = project_name
-        self.student_name = student_name
-        self.height = height
-        self.weight = weight
+        self.data = data # [project_name, student_name, height, weight,chosen_sheets]
         self.configure(bg="white")
-
         heading = tk.Label(self,text="My Project",font= font.Font(size=25), padx=20, justify="left")
         heading.pack(anchor=tk.W)
 
