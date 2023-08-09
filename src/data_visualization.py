@@ -2,32 +2,32 @@ import tkinter as tk
 from tkinter import PhotoImage, ttk, font
 from utils import current_date, current_time
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
-# input_dict = { 
-#     "headingData" : {
-#         "project_name": "House Riding",
-#         "project_creator": "Ye Thu"
-#     },
-#     "informationData": {
-#         "height": 34,
-#         "weight" : 23,
-#         "student_name": "adsasdfdasf"
-#     } ,
-#     "visualizationData": {
-#         "category": ["Joint Angles XZY", "L5S1 Axial Bending "],
-#         "movement": ["L5S1 Flexion/Extension",  ], 
-#         "scenerio": ["Horse Riding"],
-#         "duration": 3,
-#         "starting_time": 0.2,
-#         "Graph_type": ["Single Graph", "Double Graph"],
-#         "fig_size": (),
-#         "ref_name":
-#         "ref_file":
-#         "student_name":
-#         "student_file": 
-#     }
-# }
+input_dict = { 
+    "headingData" : {
+        "project_name": "House Riding",
+        "project_creator": "Ye Thu"
+    },
+    "informationData": {
+        "height": 34,
+        "weight" : 23,
+        "student_name": "adsasdfdasf"
+    } ,
+    "visualizationData": {
+        "category": ["Joint Angles XZY", "L5S1 Axial Bending "],
+        "movement": ["L5S1 Flexion/Extension",  ], 
+        "scenerio": ["Horse Riding"],
+        "duration": 3,
+        "starting_time": 0.2,
+        "Graph_type": ["Single Graph", "Double Graph"],
+        "fig_size": (15,5),
+        "ref_name": "Reference",
+        "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
+        "student_name": "Toni",
+        "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+    }
+}
+
 class DataVisualization(ttk.Frame):
-<<<<<<< HEAD
     def __init__(self, input_list):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
@@ -42,14 +42,6 @@ class DataVisualization(ttk.Frame):
         [project_name, project_creator] = headingData
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
-=======
-    def __init__(self, parent,data):
-        tk.Frame.__init__(self, parent, bg="white")
-        self.pack(expand=True, fill="both")
-        self.data = data # [project_name, student_name, height, weight,chosen_sheets]
-        self.configure(bg="white")
-        heading = tk.Label(self,text="My Project",font= font.Font(size=25), padx=20, justify="left")
->>>>>>> main
         heading.pack(anchor=tk.W)
 
         InformationFrame(self, informationData)
