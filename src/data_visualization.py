@@ -27,6 +27,7 @@ COLOR = '#%02x%02x%02x' % (174, 239, 206)
 #     }
 # }
 class DataVisualization(ttk.Frame):
+<<<<<<< HEAD
     def __init__(self, input_list):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
@@ -41,6 +42,14 @@ class DataVisualization(ttk.Frame):
         [project_name, project_creator] = headingData
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
+=======
+    def __init__(self, parent,data):
+        tk.Frame.__init__(self, parent, bg="white")
+        self.pack(expand=True, fill="both")
+        self.data = data # [project_name, student_name, height, weight,chosen_sheets]
+        self.configure(bg="white")
+        heading = tk.Label(self,text="My Project",font= font.Font(size=25), padx=20, justify="left")
+>>>>>>> main
         heading.pack(anchor=tk.W)
 
         InformationFrame(self, informationData)

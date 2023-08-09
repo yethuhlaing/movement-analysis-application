@@ -37,15 +37,12 @@ class App(tk.Tk):
         self.project_creation = ProjectCreation(self, project_name=project_name)
         self.project_creation.pack(expand=True, fill="both")
 
-    # just an example of how to get data
-    def show_visualize_data(self, project_name, student_name, height, weight):
-        self.project_creation.grid_forget()
-        self.visualize_data = DataVisualization(self, 
-            project_name=project_name, 
-            student_name=student_name,
-            height=height, 
-            weight=weight)
-        self.visualize_data.grid(row=0, column=0, sticky='nsew')
+    def show_visualize_data(self, data):
+        if self.data_visualization:
+            self.data_visualization.pack_forget()
+        self.project_creation.pack_forget()
+        self.data_visualization = DataVisualization(self, data)
+        self.data_visualization.pack(expand=True, fill="both")
 
 
 if __name__ == "__main__":

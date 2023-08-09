@@ -6,6 +6,8 @@ COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class ProjectCreation(ttk.Frame):
     def __init__(self, parent, project_name):
         tk.Frame.__init__(self, parent, bg="white")
+        self.project_name = project_name
+        self.data = []
         self.create_widgets(project_name)
         self.pack(expand=True, fill="both")
 
@@ -32,13 +34,16 @@ class ProjectCreation(ttk.Frame):
             "Sensor Magnetic Field"
         ]
 
-        self.check_var = []
+        # Create a dictionary to store the BooleanVar instances for each category
+        self.check_var_dict = {}
+
+        # Create the checkboxes with corresponding BooleanVar instances
         for idx, option in enumerate(options):
             var = tk.BooleanVar(value=True)  # Default checkboxes to active
-            self.check_var.append(var)
+            self.check_var_dict[option] = var
             checkbox = tk.Checkbutton(checkbox_frame, text=option, variable=var, bg="white", anchor='w')
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
-
+            
         # Create a LabelFrame for the "General" section
         general_frame = ttk.LabelFrame(self, text="General", padding=(10, 10))
         general_frame.grid(row=0, column=1, padx=50, pady=30, sticky='nsew', rowspan=3, columnspan=2)
@@ -55,7 +60,7 @@ class ProjectCreation(ttk.Frame):
         # Heading "Duration" with a dropbox
         duration_label = tk.Label(general_frame, text="Duration", font=font.Font(size=12), pady=5)
         duration_label.grid(row=1, column=0, sticky='w')
-
+        
         duration_options = ["1 hour", "2 hours", "3 hours"]
         self.duration_var = tk.StringVar(value=duration_options[0])
         duration_dropdown = ttk.Combobox(general_frame, textvariable=self.duration_var, values=duration_options, state="readonly", width=20)
@@ -162,7 +167,16 @@ class ProjectCreation(ttk.Frame):
                                  command=lambda: self.on_start_button_click(project_name))
         start_button.grid(row=4, column=1, columnspan=2, pady=20)
 
-        def on_start_button_click(self, project_name):
-            # Get the selected categories from the checkboxes
-            selected_categories = [option for option, var in zip(self.check_var, options) if var.get()]
-            print("Selected Categories:", selected_categories)
+    def on_start_button_click(self):
+        # Gets selected checkboxes for sheet names
+        chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
+        # Data array containing [project_name, student_name, height, weight,chosen_sheets]
+        data = [
+            self.project_name,
+            self.student_name_var.get(),
+            self.height_var.get(),
+            self.weight_var.get(),
+            chosen_sheets
+        ]
+        # Switch to the DataVisualization page and pass the data array
+        self.master.show_visualize_data(data)
