@@ -1,0 +1,4 @@
+.venv
+data
+doc
+src/__pycache__

@@ -1,79 +1,111 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-
+from utils import current_date, current_time
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
-
+# input_dict = { 
+#     "headingData" : {
+#         "project_name": "House Riding",
+#         "project_creator": "Ye Thu"
+#     },
+#     "informationData": {
+#         "height": 34,
+#         "weight" : 23,
+#         "student_name": "adsasdfdasf"
+#     } ,
+#     "visualizationData": {
+#         "category": ["Joint Angles XZY", "L5S1 Axial Bending "],
+#         "movement": ["L5S1 Flexion/Extension",  ], 
+#         "scenerio": ["Horse Riding"],
+#         "duration": 3,
+#         "starting_time": 0.2,
+#         "Graph_type": ["Single Graph", "Double Graph"],
+#         "fig_size": (),
+#         "ref_name":
+#         "ref_file":
+#         "student_name":
+#         "student_file": 
+#     }
+# }
 class DataVisualization(ttk.Frame):
-    def __init__(self, parent,project_name, student_name, height, weight):
-        tk.Frame.__init__(self, parent, bg="white")
-        self.pack(expand=True, fill="both")
-        #example
-        self.project_name = project_name
-        self.student_name = student_name
-        self.height = height
-        self.weight = weight
+    def __init__(self, input_list):
+        tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
+        self.pack(expand=True, fill="both")
 
-        heading = tk.Label(self,text="My Project",font= font.Font(size=25), padx=20, justify="left")
+        #Accepting the data from the last previous page
+        headingData = input_list[:2]
+        informationData = input_list[2:5]
+        visualizationData  = input_list[5::]                    
+
+        ## Heading 
+        [project_name, project_creator] = headingData
+        heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
+        heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
 
-        InformationFrame(self)
-        VisualizationFrame(self)
+        InformationFrame(self, informationData)
+        VisualizationFrame(self, visualizationData)
 
 class InformationFrame(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, informationData):
         tk.Frame.__init__(self, parent, bg="white")
+        [height, weight, student_name] = informationData
+        self.height = height
+        self.weight = weight
+        self.student_name = student_name
+        self.bmi = round(self.weight / ((self.height/100) ** 2), 2)
         self.create_widgets()
         self.pack(expand = True, fill = 'both', padx = 20, pady = 20)
 
     def create_widgets(self):
+        text_font = font.Font(family="Bookman Old Style", size=13)
         # Create the first frame
         infoFrame = tk.Frame(self, bg='red')
         infoFrame.grid(row=0, column=0, pady=10, sticky='nsew')
-
         # Set the grid weights to control the resizing behavior
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=6)
         self.grid_columnconfigure(1, weight=4)
 
         # Create the first sub-frame
-        sub_frame1 = tk.Frame(infoFrame, bg='green')
-        sub_frame1.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+        sub_frame1 = tk.Frame(infoFrame, background="white")
+        sub_frame1.grid(row=0, column=0, sticky='nsew')
 
         # Create the second sub-frame
-        sub_frame2 = tk.Frame(infoFrame, bg='green')
-        sub_frame2.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
+        sub_frame2 = tk.Frame(infoFrame, background="white")
+        sub_frame2.grid(row=0, column=1, sticky='nsew')
 
         infoFrame.grid_rowconfigure(0, weight=1)
         infoFrame.grid_columnconfigure(0, weight=5)
         infoFrame.grid_columnconfigure(1, weight=5)
         # Add widgets to the frames
-        
-        height = tk.Label(sub_frame1, text=f"Height", justify='left')
+        height = tk.Label(sub_frame1, text=f"Height - {self.height} cm", justify='left', background="white" , font=text_font)
         height.pack()
-        weight = tk.Label(sub_frame1, text=f"Weight", justify='left')
+        weight = tk.Label(sub_frame1, text=f"Weight - {self.weight} kg", justify='left', background="white", font=text_font)
         weight.pack()
-        bmi = tk.Label(sub_frame1, text=f"BMI", justify='left')
+        bmi = tk.Label(sub_frame1, text=f"BMI - {self.bmi}", justify='left', background="white", font=text_font)
         bmi.pack()
-
-        date = tk.Label(sub_frame2, text=f"Date", justify='right')
+        date = tk.Label(sub_frame2, text=f"Date - {current_date}", justify='right' , font=text_font, background="white" )
         date.pack()
-        time = tk.Label(sub_frame2, text=f"Time", justify='right')
+        time = tk.Label(sub_frame2, text=f"Time - {current_time}", justify='right', font=text_font, background="white" )
         time.pack()
-        creater = tk.Label(sub_frame2, text=f"Creater", justify='right')
+        creater = tk.Label(sub_frame2, text=f"Student - {self.student_name}", justify='right', font=text_font, background="white" )
         creater.pack()
 
         # Create the second frame
-        optionFrame = tk.Frame(self, bg='blue')
-        optionFrame.grid(row=0, column=1, pady=10, sticky='nsew')
+        optionFrame = tk.Frame(self, background="white" )
+        optionFrame.grid(row=0, column=1, sticky='nsew')
 
-        backButton = tk.Button(optionFrame, text ="Go Back", bg= COLOR, bd=0, width=20, padx=20, )
+
+        button_font = font.Font(family="Bookman Old Style", size=10)
+        backButton = tk.Button(optionFrame, text ="Go Back", bg= COLOR, bd=0, width=20, padx=30, font=button_font )
         backButton.pack( pady=10)
-        saveButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=20 )
+        saveButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
         saveButton.pack( pady=10)
 
 class VisualizationFrame(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, visualizationData):
+        self.visualizationData = visualizationData
         tk.Frame.__init__(self, parent, bg="white")
 
         self.pack( expand=True, fill="both", padx = 20, pady = 20)
@@ -101,15 +133,18 @@ class VisualizationFrame(ttk.Frame):
 
 
         # Add widgets to the frame
-        GraphEntry(frame)
-        GraphEntry(frame)
+        GraphEntry(frame, self.visualizationData )
+        GraphEntry(frame , self.visualizationData )
         SummaryEntry(frame)
         
         canvas.create_window((0, 0), window=frame, anchor="nw")
 
+
+    
 class GraphEntry(ttk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="white")
+        [category, movement, scenerio, duration, starting_time, Graph_type, fig_size, ref_name, ref_file, student_name, student_file] = 
         self.pack(expand = True, fill = 'both')
         self.create_widget()
 
@@ -136,13 +171,13 @@ class GraphEntry(ttk.Frame):
     def create_graphs(self, parentFrame):
         # Create the first frame
 
-        BarGraph = tk.Frame(parentFrame, bg='red', height=100)
-        BarGraph.grid(row=0, column=0, pady=10, sticky='nsew')
-
         # Set the grid weights to control the resizing behavior
         parentFrame.grid_rowconfigure(0, weight=1)
         parentFrame.grid_columnconfigure(0, weight=7)
         parentFrame.grid_columnconfigure(1, weight=3)
+
+        BarGraph = tk.Frame(parentFrame, bg='red', height=100)
+        BarGraph.grid(row=0, column=0, pady=10, sticky='nsew')
 
         # Create the second frame
         PieChart = tk.Frame(parentFrame, bg='blue', height=100)
@@ -194,3 +229,5 @@ class SummaryEntry(ttk.Frame):
         scrollbar_table = ttk.Scrollbar(self, orient = 'vertical', command = table.yview)
         table.configure(yscrollcommand = scrollbar_table.set)
         scrollbar_table.place(relx = 1, rely = 0, relheight = 1, anchor = 'ne')
+
+
