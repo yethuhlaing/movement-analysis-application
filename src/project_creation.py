@@ -197,14 +197,30 @@ class ProjectCreation(ttk.Frame):
     def on_start_button_click(self):
         # Gets selected checkboxes for sheet names
         chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
-        # Data array containing [project_name, student_name, height, weight,chosen_sheets]
-        data = [
-            self.project_name,
-            self.student_name_var.get(),
-            self.height_var.get(),
-            self.weight_var.get(),
-            chosen_sheets
-        ]
+        input_dict = { 
+            "headingData" : {
+                "project_name": self.project_name,
+                "project_creator": "IMPLEMENT"
+            },
+            "informationData": {
+                "height": self.height_var.get(),
+                "weight" : self.weight_var.get(),
+                "student_name": self.student_name_var.get()
+            } ,
+            "visualizationData": {
+                "category": chosen_sheets,
+                "movement": ["L5S1 Flexion/Extension",  ], #Implement
+                "scenerio": ["Horse Riding"],              #Implement
+                "duration": 3,                             #Implement
+                "starting_time": 0.2,                      #Implement
+                "Graph_type": ["Single Graph", "Double Graph"], #What are the available graph types?
+                "fig_size": (15,5),                             # Fig sizes? min and max values
+                "ref_name": self.name_var.get(),                   
+                "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
+                "student_name": self.student_name_var.get(),
+                "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+            }
+        }
         # Switch to the DataVisualization page and pass the data array
-        self.master.show_visualize_data(data)
+        self.master.show_visualize_data(input_dict)
 
