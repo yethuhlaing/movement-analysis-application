@@ -23,8 +23,32 @@ class App(tk.Tk):
         # Create instances of the LandingPage
         self.landing_page = None
         self.project_creation = None
-        input_list = ["HorseBack Riding","Ye Thu Hlaing", 180, 70, "Johnson", "JointXYZ","L5S1 Flexion/Extension"]
-        self.data_visualization = DataVisualization(input_list)
+        input_dict = { 
+            "headingData" : {
+                "project_name": "House Riding",
+                "project_creator": "Ye Thu"
+            },
+            "informationData": {
+                "height": 34,
+                "weight" : 23,
+                "student_name": "adsasdfdasf"
+            } ,
+            "visualizationData": {
+                "categories": ["Joint Angles XZY", "L5S1 Axial Bending", "Joint Angles ZXY"],
+                "movements": ["L5S1 Flexion/Extension", "L5S1 Axial Bending" ], 
+                "scenerio": ["Horse Riding"],
+                "duration": 3,
+                "starting_time": 0.2,
+                "Graph_type": ["Single Graph", "Double Graph"],
+                "fig_size": (15,5),
+                "ref_name": "Reference",
+                "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
+                "student_name": "Toni",
+                "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+            }
+        }
+
+        self.data_visualization = DataVisualization(input_dict)
         # Show the landing page initially using pack
         # self.landing_page.pack(expand=True, fill="both")
         self.data_visualization.pack(expand=True, fill="both")

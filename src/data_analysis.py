@@ -10,10 +10,8 @@ import math
 from tabulate import tabulate
 
 def readCategory(file_path:str, sheet_name:str, category: list, frameRate: int, Duration: float, startingTime: float = 0):
-    
     df = pd.read_excel(file_path, header=0, index_col= 0 ,sheet_name = sheet_name, usecols = category)
     num_rows = df.shape[0]
-    print(num_rows)
     desired_num_rows = math.floor(frameRate*Duration) 
     starting_rows =  math.floor(startingTime*frameRate) 
     ending_rows = starting_rows + desired_num_rows

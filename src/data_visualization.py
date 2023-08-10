@@ -1,31 +1,31 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-from utils import current_date, current_time
-COLOR = '#%02x%02x%02x' % (174, 239, 206)
-input_dict = { 
-    "headingData" : {
-        "project_name": "House Riding",
-        "project_creator": "Ye Thu"
-    },
-    "informationData": {
-        "height": 34,
-        "weight" : 23,
-        "student_name": "adsasdfdasf"
-    } ,
-    "visualizationData": {
-        "category": ["Joint Angles XZY", "L5S1 Axial Bending "],
-        "movement": ["L5S1 Flexion/Extension",  ], 
-        "scenerio": ["Horse Riding"],
-        "duration": 3,
-        "starting_time": 0.2,
-        "Graph_type": ["Single Graph", "Double Graph"],
-        "fig_size": (15,5),
-        "ref_name": "Reference",
-        "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
-        "student_name": "Toni",
-        "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
-    }
-}
+from utils import current_date, current_time, COLOR
+from data_analysis import *
+# input_dict = { 
+#     "headingData" : {
+#         "project_name": "House Riding",
+#         "project_creator": "Ye Thu"
+#     },
+#     "informationData": {
+#         "height": 34,
+#         "weight" : 23,
+#         "student_name": "adsasdfdasf"
+#     } ,
+#     "visualizationData": {
+#         "categories": ["Joint Angles XZY", "L5S1 Axial Bending "],
+#         "movements": ["L5S1 Flexion/Extension", "L5S1 Axial Bending"], 
+#         "scenerio": ["Horse Riding"],
+#         "duration": 3,
+#         "starting_time": 0.2,
+#         "Graph_type": ["Single Graph", "Double Graph"],
+#         "fig_size": (15,5),
+#         "ref_name": "Reference",
+#         "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
+#         "student_name": "Toni",
+#         "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+#     }
+# }
 
 class DataVisualization(ttk.Frame):
     def __init__(self, input_list):
@@ -34,12 +34,12 @@ class DataVisualization(ttk.Frame):
         self.pack(expand=True, fill="both")
 
         #Accepting the data from the last previous page
-        headingData = input_list[:2]
-        informationData = input_list[2:5]
-        visualizationData  = input_list[5::]                    
+        headingData = input_list["headingData"]
+        informationData = input_list["informationData"]
+        visualizationData  = input_list["visualizationData"]                    
 
         ## Heading 
-        [project_name, project_creator] = headingData
+        project_name, project_creator = headingData.values()
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
@@ -50,10 +50,7 @@ class DataVisualization(ttk.Frame):
 class InformationFrame(ttk.Frame):
     def __init__(self, parent, informationData):
         tk.Frame.__init__(self, parent, bg="white")
-        [height, weight, student_name] = informationData
-        self.height = height
-        self.weight = weight
-        self.student_name = student_name
+        self.height, self.weight, self.student_name = informationData.values()
         self.bmi = round(self.weight / ((self.height/100) ** 2), 2)
         self.create_widgets()
         self.pack(expand = True, fill = 'both', padx = 20, pady = 20)
@@ -116,8 +113,6 @@ class VisualizationFrame(ttk.Frame):
         # Create a canvas widget
         canvas = tk.Canvas(self, height="600" ,highlightthickness=0, relief='ridge')
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-
         # Create a scrollbar widget
 
         scrollbar = ttk.Scrollbar(self, orient = 'vertical', command=canvas.yview)
@@ -131,11 +126,9 @@ class VisualizationFrame(ttk.Frame):
         # Create a frame inside the canvas to hold the content
         frame = tk.Frame(canvas)
         frame.grid(sticky="ew")
-
-
-        # Add widgets to the frame
-        GraphEntry(frame, self.visualizationData )
-        GraphEntry(frame , self.visualizationData )
+        for category in self.visualizationData["categories"]:
+            GraphEntry(frame, category, self.visualizationData )
+        
         SummaryEntry(frame)
         
         canvas.create_window((0, 0), window=frame, anchor="nw")
@@ -143,16 +136,17 @@ class VisualizationFrame(ttk.Frame):
 
     
 class GraphEntry(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, category, visualizationData ):
         tk.Frame.__init__(self, parent, bg="white")
-        [category, movement, scenerio, duration, starting_time, Graph_type, fig_size, ref_name, ref_file, student_name, student_file] = 
+        self.category = category
+        _, self.movement, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.fig_size, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
         self.pack(expand = True, fill = 'both')
         self.create_widget()
 
     def create_widget(self):
         # Create three frames
-        heading_frame = tk.Frame(self, bg="red",padx=50, pady=10, height=50,width=1500)
-        graph_frame = tk.Frame(self, bg="green", padx=50, pady=10, height=200,width=1500 )
+        heading_frame = tk.Frame(self, bg=COLOR,padx=50, pady=10, height=50,width=1500)
+        graph_frame = tk.Frame(self, bg="white", padx=50, pady=10, height=200,width=1500 )
         information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200,width=1500)
 
         # Configure grid layout manager
@@ -166,23 +160,31 @@ class GraphEntry(ttk.Frame):
         graph_frame.grid(row=1, column=0, sticky="ew", )
         information_frame.grid(row=2, column=0, sticky="ew",  pady=(0,10))
 
+        # Initialize the content
+        text_font = font.Font(family="Bookman Old Style", size=12)
+        category_label = tk.Label(heading_frame, text= self.category, justify='center', background=COLOR , font=text_font)
+        category_label.pack()
+
         self.create_graphs(graph_frame)
 
 
     def create_graphs(self, parentFrame):
-        # Create the first frame
 
         # Set the grid weights to control the resizing behavior
         parentFrame.grid_rowconfigure(0, weight=1)
         parentFrame.grid_columnconfigure(0, weight=7)
         parentFrame.grid_columnconfigure(1, weight=3)
 
+        # Create the Graph 
         BarGraph = tk.Frame(parentFrame, bg='red', height=100)
         BarGraph.grid(row=0, column=0, pady=10, sticky='nsew')
-
+        # Initialize the content
+        reference_df = readCategory(self.ref_file, self.category, self.movement, self.rame, self.starting_time, .2)
+        reference_df
         # Create the second frame
         PieChart = tk.Frame(parentFrame, bg='blue', height=100)
         PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
+
 
 class SummaryEntry(ttk.Frame):
     def __init__(self, parent):
@@ -208,7 +210,6 @@ class SummaryEntry(ttk.Frame):
         max_frequency = ['Bob', 'Maria', 'Alex', 'James', 'Susan', 'Henry', 'Lisa', 'Anna', 'Lisa']
         table_data = [movement,evaluation_Time, min_number, min_frequency, max_number, max_frequency]
 
-        COLOR = '#%02x%02x%02x' % (174, 239, 206)
         table.tag_configure('oddrow', background='white')
         table.tag_configure('evenrow', background=COLOR)
 
