@@ -32,18 +32,18 @@ class DataVisualization(ttk.Frame):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
         self.pack(expand=True, fill="both")
-
+        
         #Accepting the data from the last previous page
         headingData = input_list[:2]
         informationData = input_list[2:5]
-        visualizationData  = input_list[5::]                    
-
+        visualizationData  = input_list[5::]    
+        
         ## Heading 
         [project_name, project_creator] = headingData
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
-
+        
         InformationFrame(self, informationData)
         VisualizationFrame(self, visualizationData)
 
