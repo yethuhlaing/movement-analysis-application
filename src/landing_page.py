@@ -19,7 +19,7 @@ class LandingPage(ttk.Frame):
         canvas.grid(row=0, column=0, columnspan=3)
         canvas.create_image(0, 0, image=bg_photo, anchor="nw")
         def resizer(event):
-            global bg1, resized_bg, new_bg
+            global bg1, resized_bg, new_bg # Needed for garbage collector
             bg1 = Image.open("temp_bgimg.jpg")
             resized_bg = bg1.resize((event.width, event.height),Image.Resampling.LANCZOS)
             new_bg = ImageTk.PhotoImage(resized_bg)

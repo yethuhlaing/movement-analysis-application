@@ -26,6 +26,8 @@ class ExcelFileInputWidget(tk.Label):
 class ProjectCreation(ttk.Frame):
     def __init__(self, parent, project_name):
         tk.Frame.__init__(self, parent, bg="white")
+        self.project_name = project_name
+        self.data = []
         self.create_widgets(project_name)
         self.pack(expand=True, fill="both")
 
@@ -51,10 +53,13 @@ class ProjectCreation(ttk.Frame):
             "Sensor Magnetic Field"
         ]
 
-        self.check_var = []
+        # Create a dictionary to store the BooleanVar instances for each category
+        self.check_var_dict = {}
+
+        # Create the checkboxes with corresponding BooleanVar instances
         for idx, option in enumerate(options):
             var = tk.BooleanVar(value=True)  # Default checkboxes to active
-            self.check_var.append(var)
+            self.check_var_dict[option] = var
             checkbox = tk.Checkbutton(checkbox_frame, text=option, variable=var, bg="white", anchor='w')
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
 
@@ -186,10 +191,19 @@ class ProjectCreation(ttk.Frame):
         student_drop_box_frame.bind("<<Drop>>", on_student_data_drop)  # Use "DND_DND_RELEASE" event type
 
         start_button = tk.Button(self, text="Start", bg=COLOR, bd=0, width=20, padx=20,
-                                 command=lambda: self.on_start_button_click(project_name))
+                                 command=lambda: self.on_start_button_click())
         start_button.grid(row=4, column=1, columnspan=2, pady=20)
 
-        def on_start_button_click(self, project_name):
-            # Get the selected categories from the checkboxes
-            selected_categories = [option for option, var in zip(self.check_var, options) if var.get()]
-            print("Selected Categories:", selected_categories)
+    def on_start_button_click(self):
+        # Gets selected checkboxes for sheet names
+        chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
+        # Data array containing [project_name, student_name, height, weight,chosen_sheets]
+        data = [
+            self.project_name,
+            self.student_name_var.get(),
+            self.height_var.get(),
+            self.weight_var.get(),
+            chosen_sheets
+        ]
+        # Switch to the DataVisualization page and pass the data array
+        self.master.show_visualize_data(data)
