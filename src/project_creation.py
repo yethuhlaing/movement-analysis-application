@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, font, filedialog
 import pandas as pd
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
+
 class ExcelFileInputWidget(tk.Label):
     def __init__(self, parent):
         super().__init__(parent, text="Click to select Excel files.", bg="white")
