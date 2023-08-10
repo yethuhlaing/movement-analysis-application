@@ -16,16 +16,18 @@ class App(tk.Tk):
         self.geometry("%dx%d" % (width, height))
 
         # logo
-        p1 = PhotoImage(file='lab-logo.png')
+        filepath = '../assets/lab-logo.png'
+        p1 = PhotoImage(file=filepath)
         self.iconphoto(False, p1)
 
         # Create instances of the LandingPage
-        self.landing_page = LandingPage(self)
+        self.landing_page = None
         self.project_creation = None
-        self.data_visualization = None
-
+        input_list = ["HorseBack Riding","Ye Thu Hlaing", 180, 70, "Johnson", "JointXYZ","L5S1 Flexion/Extension"]
+        self.data_visualization = DataVisualization(input_list)
         # Show the landing page initially using pack
-        self.landing_page.pack(expand=True, fill="both")
+        # self.landing_page.pack(expand=True, fill="both")
+        self.data_visualization.pack(expand=True, fill="both")
 
     # functions to switch between frames
     def show_project_creation(self, project_name):
@@ -35,7 +37,6 @@ class App(tk.Tk):
         self.project_creation = ProjectCreation(self, project_name=project_name)
         self.project_creation.pack(expand=True, fill="both")
 
-    # just an example of how to get data
     def show_visualize_data(self, data):
         if self.data_visualization:
             self.data_visualization.pack_forget()

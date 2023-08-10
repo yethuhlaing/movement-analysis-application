@@ -67,7 +67,7 @@ class ProjectCreation(ttk.Frame):
         self.excel_widget = ExcelFileInputWidget(self)
         self.excel_widget.grid(row=3, column=0, padx=50, pady=30, sticky='nsew')
 
-        # Project name text as tittle
+        # Project name text as title
         project_title = ttk.Label(self, text=project_name, font=font.Font(size=25))
         project_title.grid(row=0, column=0,padx=50, pady=30, sticky='w')
 
@@ -87,7 +87,7 @@ class ProjectCreation(ttk.Frame):
         # Heading "Duration" with a dropbox
         duration_label = tk.Label(general_frame, text="Duration", font=font.Font(size=12), pady=5)
         duration_label.grid(row=1, column=0, sticky='w')
-
+        
         duration_options = ["1 hour", "2 hours", "3 hours"]
         self.duration_var = tk.StringVar(value=duration_options[0])
         duration_dropdown = ttk.Combobox(general_frame, textvariable=self.duration_var, values=duration_options, state="readonly", width=20)
@@ -207,3 +207,4 @@ class ProjectCreation(ttk.Frame):
         ]
         # Switch to the DataVisualization page and pass the data array
         self.master.show_visualize_data(data)
+
