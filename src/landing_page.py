@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, font
 from PIL import Image, ImageTk
-import math
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class LandingPage(ttk.Frame):
     def __init__(self, parent):
@@ -26,7 +25,7 @@ class LandingPage(ttk.Frame):
             new_bg = ImageTk.PhotoImage(resized_bg)
             canvas.create_image(0, 0, image=new_bg, anchor="nw")
         self.bind('<Configure>', resizer)
-        
+
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 

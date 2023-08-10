@@ -1,8 +1,28 @@
 import tkinter as tk
-from tkinter import ttk, font
-
+from tkinter import ttk, font, filedialog
+import pandas as pd
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
+class ExcelFileInputWidget(tk.Label):
+    def __init__(self, parent):
+        super().__init__(parent, text="Click to select Excel files.", bg="white")
+        self.configure(cursor="hand2")
+        self.bind("<Button-1>", self.select_file)
 
+    def select_file(self, event):
+        file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
+        if file_path:
+            print("Selected file:", file_path)
+            self.process_excel(file_path)
+
+    def process_excel(self, file_path):
+        try:
+            df = pd.read_excel(file_path, engine='openpyxl', sheet_name="Joint Angles XZY")
+            frame_count = df.iloc[-1, 0]
+        except Exception as e:
+            print(f"Error loading Excel file: {e}")
+            return None, None
+        return frame_count, file_path
+    
 class ProjectCreation(ttk.Frame):
     def __init__(self, parent, project_name):
         tk.Frame.__init__(self, parent, bg="white")
@@ -13,7 +33,6 @@ class ProjectCreation(ttk.Frame):
         # Create a LabelFrame to group the checkboxes
         checkbox_frame = ttk.LabelFrame(self, text="Choose the category to examine", padding=(10, 10))
         checkbox_frame.grid(row=0, column=0, padx=50, pady=30, sticky='nsew')
-
         # List of options with checkboxes
         options = [
             "Segment Angular Velocity",
@@ -38,6 +57,14 @@ class ProjectCreation(ttk.Frame):
             self.check_var.append(var)
             checkbox = tk.Checkbutton(checkbox_frame, text=option, variable=var, bg="white", anchor='w')
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
+
+        #File drop widget
+        self.excel_widget = ExcelFileInputWidget(self)
+        self.excel_widget.grid(row=3, column=0, padx=50, pady=30, sticky='nsew')
+
+        # Project name text as tittle
+        project_title = ttk.Label(self, text=project_name, font=font.Font(size=25))
+        project_title.grid(row=0, column=0,padx=50, pady=30, sticky='w')
 
         # Create a LabelFrame for the "General" section
         general_frame = ttk.LabelFrame(self, text="General", padding=(10, 10))
