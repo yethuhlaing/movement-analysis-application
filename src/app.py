@@ -34,17 +34,18 @@ class App(tk.Tk):
                 "student_name": "adsasdfdasf"
             } ,
             "visualizationData": {
-                "categories": ["Joint Angles XZY", "L5S1 Axial Bending", "Joint Angles ZXY"],
-                "movements": ["L5S1 Flexion/Extension", "L5S1 Axial Bending" ], 
+                "categories": ["Joint Angles XZY", "Joint Angles ZXY"],
+                "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
                 "scenerio": ["Horse Riding"],
-                "duration": 3,
-                "starting_time": 0.2,
-                "Graph_type": ["Single Graph", "Double Graph"],
+                "duration": 180,
+                "starting_time": 20,
+                "Graph_type": "Double Graph" , 
+                # Graph type options =>["Single Graph", "Double Graph"],
                 "fig_size": (15,5),
-                "ref_name": "Reference",
-                "ref_file": "../../data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
+                "ref_name": "JohnSon",
+                "ref_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
                 "student_name": "Toni",
-                "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+                "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
             }
         }
 

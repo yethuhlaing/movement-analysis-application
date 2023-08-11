@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
 from utils import current_date, current_time, COLOR
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from data_analysis import *
+
 # input_dict = { 
 #     "headingData" : {
 #         "project_name": "House Riding",
@@ -11,13 +13,13 @@ from data_analysis import *
 #         "height": 34,
 #         "weight" : 23,
 #         "student_name": "adsasdfdasf"
-#     } ,
+#     },
 #     "visualizationData": {
 #         "categories": ["Joint Angles XZY", "L5S1 Axial Bending "],
 #         "movements": ["L5S1 Flexion/Extension", "L5S1 Axial Bending"], 
 #         "scenerio": ["Horse Riding"],
-#         "duration": 3,
-#         "starting_time": 0.2,
+#         "duration": 180,
+#         "starting_time": 10,
 #         "Graph_type": ["Single Graph", "Double Graph"],
 #         "fig_size": (15,5),
 #         "ref_name": "Reference",
@@ -106,7 +108,7 @@ class VisualizationFrame(ttk.Frame):
         self.visualizationData = visualizationData
         tk.Frame.__init__(self, parent, bg="white")
 
-        self.pack( expand=True, fill="both", padx = 20, pady = 20)
+        self.pack( expand=True, fill="both")
         self.create_canvas()
 
     def create_canvas(self):
@@ -127,26 +129,27 @@ class VisualizationFrame(ttk.Frame):
         frame = tk.Frame(canvas)
         frame.grid(sticky="ew")
         for category in self.visualizationData["categories"]:
-            GraphEntry(frame, category, self.visualizationData )
+            for movement in self.visualizationData["movements"]:
+                print(category , movement)
+                GraphicalEntry(frame, category, movement, self.visualizationData )
         
         SummaryEntry(frame)
         
         canvas.create_window((0, 0), window=frame, anchor="nw")
-
-
     
-class GraphEntry(ttk.Frame):
-    def __init__(self, parent, category, visualizationData ):
+class GraphicalEntry(ttk.Frame):
+    def __init__(self, parent, category, movement, visualizationData ):
         tk.Frame.__init__(self, parent, bg="white")
         self.category = category
-        _, self.movement, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.fig_size, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
+        self.movement = movement
+        _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.fig_size, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
         self.pack(expand = True, fill = 'both')
         self.create_widget()
 
     def create_widget(self):
         # Create three frames
         heading_frame = tk.Frame(self, bg=COLOR,padx=50, pady=10, height=50,width=1500)
-        graph_frame = tk.Frame(self, bg="white", padx=50, pady=10, height=200,width=1500 )
+        graph_frame = tk.Frame(self, bg="red", padx=50, pady=10, height=200,width=1500 )
         information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200,width=1500)
 
         # Configure grid layout manager
@@ -165,10 +168,10 @@ class GraphEntry(ttk.Frame):
         category_label = tk.Label(heading_frame, text= self.category, justify='center', background=COLOR , font=text_font)
         category_label.pack()
 
-        self.create_graphs(graph_frame)
+        self.create_graph_widget(graph_frame)
 
 
-    def create_graphs(self, parentFrame):
+    def create_graph_widget(self, parentFrame):
 
         # Set the grid weights to control the resizing behavior
         parentFrame.grid_rowconfigure(0, weight=1)
@@ -177,14 +180,32 @@ class GraphEntry(ttk.Frame):
 
         # Create the Graph 
         BarGraph = tk.Frame(parentFrame, bg='red', height=100)
-        BarGraph.grid(row=0, column=0, pady=10, sticky='nsew')
+        BarGraph.pack(fill=tk.BOTH, expand=True)
+        BarGraph.grid(row=0, column=0, sticky='nsew')
         # Initialize the content
-        reference_df = readCategory(self.ref_file, self.category, self.movement, self.rame, self.starting_time, .2)
-        reference_df
+        self.reference_df = readCategory(self.ref_file, self.category, ["Frame", self.movement], self.duration, self.starting_time)
+        self.student_df = readCategory(self.student_file,self.category, ["Frame", self.movement], self.duration, self.starting_time)
+        min_value = self.reference_df.min().min()
+        max_value = self.reference_df.max().max() 
+        if self.Graph_type == "Single Graph":
+            fig = ComparisionGraph([self.reference_df, self.student_df], [self.ref_name, self.student_name], self.movement, min_value, max_value,self.fig_size)
+            canvas = FigureCanvasTkAgg(fig, master=BarGraph)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill=tk.BOTH, expand=True)
+        else:
+            fig = ComparisionGraph2([self.reference_df, self.student_df], [self.ref_name, self.student_name], self.movement, min_value, max_value,self.fig_size)
+            canvas = FigureCanvasTkAgg(fig, master=BarGraph)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill=tk.BOTH, expand=True)
+
         # Create the second frame
         PieChart = tk.Frame(parentFrame, bg='blue', height=100)
         PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
-
+        self.statusDataframe = calculateThreshold(self.student_df, self.movement, min_value, max_value)
+        fig = pieChart(self.statusDataframe)
+        canvas = FigureCanvasTkAgg(fig, master=PieChart )
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.pack( fill=tk.BOTH, expand=True )
 
 class SummaryEntry(ttk.Frame):
     def __init__(self, parent):
