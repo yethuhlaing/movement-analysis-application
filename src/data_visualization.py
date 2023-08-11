@@ -145,30 +145,52 @@ class GraphicalEntry(ttk.Frame):
         _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.fig_size, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
         self.pack(expand = True, fill = 'both')
         self.create_widget()
-
+    
+    def on_frame_resize(self, event):
+        self.frame1.config(width=event.width)
+        self.frame2.config(width=event.width)
+        self.frame3.config(width=event.width)
     def create_widget(self):
-        # Create three frames
-        heading_frame = tk.Frame(self, bg=COLOR,padx=50, pady=10, height=50,width=1500)
-        graph_frame = tk.Frame(self, bg="red", padx=50, pady=10, height=200,width=1500 )
-        information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200,width=1500)
 
-        # Configure grid layout manager
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        # Create three frames
+        self.frame1 = tk.Frame(self, bg="red")
+        self.frame2 = tk.Frame(self, bg="green")
+        self.frame3 = tk.Frame(self, bg="blue")
+
+        # Place the frames using grid
+        self.frame1.grid(row=0, column=0, sticky="nsew")
+        self.frame2.grid(row=1, column=0, sticky="nsew")
+        self.frame3.grid(row=2, column=0, sticky="nsew")
+
+        # Allow the column to expand
         self.grid_columnconfigure(0, weight=1)
 
-        # Place frames using grid layout
-        heading_frame.grid(row=0, column=0, sticky="ew", pady=(10,0))
-        graph_frame.grid(row=1, column=0, sticky="ew", )
-        information_frame.grid(row=2, column=0, sticky="ew",  pady=(0,10))
+        # Bind the frames to the resize event
+        self.frame1.bind("<Configure>", self.on_frame_resize)
+        self.frame2.bind("<Configure>", self.on_frame_resize)
+        self.frame3.bind("<Configure>", self.on_frame_resize)
 
-        # Initialize the content
-        text_font = font.Font(family="Bookman Old Style", size=12)
-        category_label = tk.Label(heading_frame, text= self.category, justify='center', background=COLOR , font=text_font)
-        category_label.pack()
+        # heading_frame = tk.Frame(self, bg=COLOR,padx=50, pady=10, height=50,width=1500)
+        # graph_frame = tk.Frame(self, bg="red", padx=50, pady=10, height=200,width=1500 )
+        # information_frame = tk.Frame(self, bg="blue", padx=10, pady=10, height=200,width=1500)
 
-        self.create_graph_widget(graph_frame)
+        # # Configure grid layout manager
+        # self.grid_rowconfigure(0, weight=1)
+        # self.grid_rowconfigure(1, weight=1)
+        # self.grid_rowconfigure(2, weight=1)
+        # self.grid_columnconfigure(0, weight=1)
+
+        # # Place frames using grid layout
+        # heading_frame.grid(row=0, column=0, sticky="ew", pady=(10,0))
+        # graph_frame.grid(row=1, column=0, sticky="ew", )
+        # information_frame.grid(row=2, column=0, sticky="ew",  pady=(0,10))
+
+        # # Initialize the content
+        # text_font = font.Font(family="Bookman Old Style", size=12)
+        # category_label = tk.Label(heading_frame, text= self.category, justify='center', background=COLOR , font=text_font)
+        # category_label.pack()
+
+        # self.create_graph_widget(graph_frame)
 
 
     def create_graph_widget(self, parentFrame):
