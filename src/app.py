@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-from data_visualization import DataVisualization
+from data_visualization.data_visualization import DataVisualization
 from landing_page import LandingPage
 from project_creation import ProjectCreation
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -23,33 +22,8 @@ class App(tk.Tk):
         # Create instances of the LandingPage
         self.landing_page = None
         self.project_creation = None
-        input_dict = { 
-            "headingData" : {
-                "project_name": "House Riding",
-                "project_creator": "Ye Thu"
-            },
-            "informationData": {
-                "height": 34,
-                "weight" : 23,
-                "student_name": "adsasdfdasf"
-            } ,
-            "visualizationData": {
-                "categories": ["Joint Angles XZY", "Joint Angles ZXY"],
-                "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
-                "scenerio": ["Horse Riding"],
-                "duration": 180,
-                "starting_time": 20,
-                "Graph_type": "Double Graph" , 
-                # Graph type options =>["Single Graph", "Double Graph"],
-                "fig_size": (15,5),
-                "ref_name": "JohnSon",
-                "ref_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Reference downsampled data/Simulator riding/Reference Harjusimu-003 Extended walk.xlsx",
-                "student_name": "Toni",
-                "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
-            }
-        }
 
-        self.data_visualization = DataVisualization(input_dict)
+        self.data_visualization = DataVisualization()
         # Show the landing page initially using pack
         # self.landing_page.pack(expand=True, fill="both")
         self.data_visualization.pack(expand=True, fill="both")
