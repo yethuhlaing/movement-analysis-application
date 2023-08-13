@@ -1,0 +1,6 @@
+data
+doc
+src\__pycache__
+src\*.pyc
+src\data_analysis\__pycache__
+src\data_visualization\__pycache__
