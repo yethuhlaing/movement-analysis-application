@@ -1,36 +1,48 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-from utils import current_date, current_time, COLOR, STYLE_SHEETS
+from configparser import ConfigParser
+from utilities.utils import current_date, current_time, COLOR, STYLE_SHEETS, serialize, deserialize
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from data_analysis.data_analysis import *
 import sqlite3
 from data import *
+from tkinter import messagebox
+from database.database import *
 class DataVisualization(ttk.Frame):
     def __init__(self):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
         self.pack(expand=True, fill="both")
 
-        headingData = user_data["headingData"]
+        headingData = USER_DATA["headingData"]
         ## Heading 
         project_name, project_creator = headingData.values()
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
+
+
         InformationFrame(self)
         VisualizationFrame(self)
 
 
+
 class InformationFrame(ttk.Frame):
     def __init__(self, parent):
+        # Database Path
+        config = ConfigParser()
+        config.read('config.ini')
+        self.db_path = config.get('Database', 'database_path')
+
         tk.Frame.__init__(self, parent, bg="white")
-        informationData = user_data["informationData"]
+        informationData = USER_DATA["informationData"]
         self.height, self.weight, self.student_name = informationData.values()
         self.bmi = round(self.weight / ((self.height/100) ** 2), 2)
         self.create_widgets()
         self.pack(expand = False, fill = 'both', pady = 20)
 
     def create_widgets(self):
+
         text_font = font.Font(family="Bookman Old Style", size=13)
         # Create the first frame
         infoFrame = tk.Frame(self, bg='red')
@@ -66,20 +78,78 @@ class InformationFrame(ttk.Frame):
         creater.pack()
 
         # Create the second frame
+
         optionFrame = tk.Frame(self, background="white" )
         optionFrame.grid(row=0, column=1, sticky='nsew')
         button_font = font.Font(family="Bookman Old Style", size=10)
-        backButton = tk.Button(optionFrame, text ="Back", bg= COLOR, bd=0, width=20, padx=30, font=button_font )
+        backButton = tk.Button(optionFrame, text ="Retreive", bg= COLOR, bd=0, width=20, padx=30, font=button_font , command=lambda: self.showMessageBox())
         backButton.pack( pady=3, anchor="e", padx=60)
-        saveButton = tk.Button(optionFrame, text ="Save",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
+        saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
         saveButton.pack( pady=3, anchor="e", padx=60)
         savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
         savePDFButton.pack( pady=3, anchor="e", padx=60)
+            
+        # Testing for History List
+        result = retreiveHistory(self.db_path)
+        project_name = result[0] 
+        projects = selectAllProject(self.db_path)
+        selected = tk.StringVar(optionFrame)
+        selected.set(projects[0])
+
+        combobox = ttk.Combobox(optionFrame, textvariable=selected, values=projects, font=('Bookman Old Style',12))
+        trv = ttk.Treeview(optionFrame, columns=(1,2,3), height=15, show="headings")
+
+        trv.column(1, anchor="center", stretch="no", width=100)
+        trv.column(2, anchor="center", stretch="no", width=100)
+        trv.column(3, anchor="center", stretch="no", width=100)
+        trv.heading(1, text="Project")
+        trv.heading(2, text="Scenario")
+        trv.heading(3, text="Student")
+
+        for project in projects:
+            trv.insert('','end', value=(project[0], project[1], project[2]))
+        label_group = self.createHistoryList(optionFrame, result)
+        label_group.pack(padx=10, pady=10)
+    def search(eventObject):
+        # clear treeview
+        for item in trv.get_children():
+            trv.delete(item)
+
+        val = combobox.get()
+        c.execute("""SELECT * FROM `users_2` WHERE `firstname` LIKE %s or 
+                `lastname` like %s""",("%"+val+"%","%"+val+"%"))
+        users = c.fetchall()
+
+        for row in users:
+            trv.insert('',END, values=row)
+    def createHistoryList(self, parent, history_list):
+        frame = tk.Frame(parent)  # Create a frame to group labels
+        for history in history_list:
+            label = tk.Label(frame, text=history[0], font=font.Font(family="Bookman Old Style", size=12))
+            label.pack(anchor="w")  # Align labels to the left
+            label = tk.Label(frame, text=history[1], font=font.Font(family="Bookman Old Style", size=12))
+            label.pack(anchor="w") 
+            label = tk.Label(frame, text=history[2], font=font.Font(family="Bookman Old Style", size=12))
+            label.pack(anchor="w") 
+        return frame
+    
+    def saveMessageBox(self):
+        if saveHistory(self.db_path):
+            messagebox.showinfo("Success", "The user data is saved successfully!")
+        else:
+            messagebox.showerror("Error", "There is some error in saving your data!")
+    
+    def showMessageBox(self):
+        result = retreiveHistory(self.db_path)
+        if result == False:
+            messagebox.showerror("Error", "There is some error in showing your history!")
+        else:
+            messagebox.showinfo("Success", "Now u can see your user history!")
 
 
 class VisualizationFrame(ttk.Frame):
     def __init__(self, parent):
-        self.visualizationData  = user_data["visualizationData"]                    
+        self.visualizationData  = USER_DATA["visualizationData"]                    
 
         canvas = tk.Canvas(parent, bg="white", highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
@@ -92,9 +162,10 @@ class VisualizationFrame(ttk.Frame):
         frame.pack(fill="both", expand=True)
         canvas.create_window((0, 0), window=frame, anchor="nw")
 
+        self.isFirstTime = checkFirstTime()
         for category in self.visualizationData["categories"]:
             for movement in self.visualizationData["movements"]:
-                GraphicalWidget(frame, category, movement, self.visualizationData) 
+                GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime)
         SummaryWidget(frame)
         # Update the scroll region
         frame.update_idletasks()
@@ -102,15 +173,15 @@ class VisualizationFrame(ttk.Frame):
 
 
 class GraphicalWidget(ttk.Frame):
-    def __init__(self, parent, category, movement, visualizationData ):
+    def __init__(self, parent, category, movement, visualizationData, isFirstTime):
         tk.Frame.__init__(self, parent, bg="white", pady=20)
         self.category = category
         self.movement = movement
         _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
-
+        self.isFirstTime = isFirstTime
         # Appending Data to Summary Table
-        user_data["summary_data"]["category"].append(self.category)
-        user_data["summary_data"]["movement"].append(self.movement)
+        USER_DATA["summary_data"]["category"].append(self.category)
+        USER_DATA["summary_data"]["movement"].append(self.movement)
 
         self.min_critical = tk.DoubleVar()
         self.line_width = tk.DoubleVar()
@@ -151,11 +222,25 @@ class GraphicalWidget(ttk.Frame):
         self.parentFrame.grid_rowconfigure(0, weight=1)
         self.parentFrame.grid_columnconfigure(0, weight=7)
         self.parentFrame.grid_columnconfigure(1, weight=3)
-
-        self.reference_df = readCategory(self.ref_file, self.category, ["Frame", self.movement], self.duration, self.starting_time)
-        self.student_df = readCategory(self.student_file,self.category, ["Frame", self.movement], self.duration, self.starting_time)
-        min_value = self.reference_df.min().min()
-        max_value = self.reference_df.max().max() 
+        if self.isFirstTime:
+            # Creating dataframe from the file
+            self.reference_df = readCategory(self.ref_file, self.category, ["Frame", self.movement], self.duration, self.starting_time)
+            self.student_df = readCategory(self.student_file,self.category, ["Frame", self.movement], self.duration, self.starting_time)
+            min_value = self.reference_df.min().min()
+            max_value = self.reference_df.max().max() 
+            self.status_df = calculateThreshold(self.student_df, self.movement, min_value, max_value)
+            # Pushing Dataframe into the USER_DATA
+            USER_DATA["dataframe"]["reference_df"] = serialize(self.reference_df)
+            USER_DATA["dataframe"]["student_df"] = serialize(self.student_df)
+            USER_DATA["dataframe"]["status_df"] = serialize(self.status_df)
+        else:
+            print("REcenet HIstory")
+            # Using the previous Dataframe from the USER_DATA
+            self.reference_df = deserialize(USER_DATA["dataframe"]["reference_df"])
+            self.student_df = deserialize(USER_DATA["dataframe"]["student_df"])
+            self.status_df = deserialize(USER_DATA["dataframe"]["status_df"])
+            min_value = self.reference_df.min().min()
+            max_value = self.reference_df.max().max()
 
         # Create the Graph Frame 
         self.BarGraph = tk.Frame(self.parentFrame, bg='white')
@@ -165,8 +250,7 @@ class GraphicalWidget(ttk.Frame):
         # Create the Piechart frame
         self.PieChart = tk.Frame(self.parentFrame, bg='white')
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
-        self.statusDataframe = calculateThreshold(self.student_df, self.movement, min_value, max_value)
-        self.initializePieChart(self.statusDataframe, self.PieChart)
+        self.initializePieChart(self.status_df, self.PieChart)
 
     def initializeBarGraph(self, parent, min_value, max_value, grid_line, line_width, horizontal_line):
         if self.Graph_type == "Single Graph":
@@ -180,8 +264,8 @@ class GraphicalWidget(ttk.Frame):
             canvas_widget = canvas.get_tk_widget()
             canvas_widget.pack(fill=tk.BOTH, expand=True)
 
-    def initializePieChart(self, statusDataframe, parent):
-        fig = pieChart(statusDataframe)
+    def initializePieChart(self, status_df, parent):
+        fig = pieChart(status_df)
         canvas = FigureCanvasTkAgg(fig, master=parent )
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack( fill=tk.BOTH, expand=True )
@@ -253,13 +337,13 @@ class GraphicalWidget(ttk.Frame):
 
         outputFrame = tk.Frame(parentFrame, background="white" )
         outputFrame.grid(row=0, column=4, sticky='nsew')
-        Optimal, TooHigh, TooLow, minimum_time_inMinute, maximum_time_inMinute = outputCriticalValues(self.statusDataframe, self.movement)
+        Optimal, TooHigh, TooLow, minimum_time_inMinute, maximum_time_inMinute = outputCriticalValues(self.status_df, self.movement)
         # Appending Data to Summary Table
-        user_data["summary_data"]["minimum_time"].append(minimum_time_inMinute)
-        user_data["summary_data"]["maximum_time"].append(maximum_time_inMinute)
-        user_data["summary_data"]["minimum_duration"].append(TooLow)
-        user_data["summary_data"]["optimal_duration"].append(Optimal)
-        user_data["summary_data"]["maximum_duration"].append(TooHigh)
+        USER_DATA["summary_data"]["minimum_time"].append(minimum_time_inMinute)
+        USER_DATA["summary_data"]["maximum_time"].append(maximum_time_inMinute)
+        USER_DATA["summary_data"]["minimum_duration"].append(TooLow)
+        USER_DATA["summary_data"]["optimal_duration"].append(Optimal)
+        USER_DATA["summary_data"]["maximum_duration"].append(TooHigh)
         if TooHigh != None:
             TooHighText = f"Total duration for  'Too high' - {TooHigh} second ({TooHigh/60:.1f} minute)"
         else:
@@ -292,8 +376,8 @@ class GraphicalWidget(ttk.Frame):
         self.PieChart.destroy()
         self.PieChart = tk.Frame(self.graph_frame, bg='white')
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
-        self.statusDataframe = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
-        self.initializePieChart(self.statusDataframe, self.PieChart)
+        self.status_df = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
+        self.initializePieChart(self.status_df, self.PieChart)
 
 
 class SummaryWidget(ttk.Frame):
@@ -323,16 +407,16 @@ class SummaryWidget(ttk.Frame):
         table.heading("#6",text="Optimal Duration(min)")
         table.heading("#7",text="Maximum Duration(min)") 
 
-        for idx, category in enumerate(user_data["summary_data"]["category"]):
+        for idx, category in enumerate(USER_DATA["summary_data"]["category"]):
             # Determine the tag for the row
             tag = 'oddrow' if idx % 2 == 0 else 'evenrow'
 
-            movement = user_data["summary_data"]["movement"][idx]
-            min_time = user_data["summary_data"]["minimum_time"][idx]
-            max_time = user_data["summary_data"]["maximum_time"][idx]
-            min_duration = user_data["summary_data"]["minimum_duration"][idx]
-            optimal_duration = user_data["summary_data"]["optimal_duration"][idx]
-            max_duration = user_data["summary_data"]["maximum_duration"][idx]
+            movement = USER_DATA["summary_data"]["movement"][idx]
+            min_time = USER_DATA["summary_data"]["minimum_time"][idx]
+            max_time = USER_DATA["summary_data"]["maximum_time"][idx]
+            min_duration = USER_DATA["summary_data"]["minimum_duration"][idx]
+            optimal_duration = USER_DATA["summary_data"]["optimal_duration"][idx]
+            max_duration = USER_DATA["summary_data"]["maximum_duration"][idx]
             
             table.insert("", idx, text=str(idx), values=(category, movement, min_time, max_time, min_duration, optimal_duration, max_duration),tags=(tag,))            
 

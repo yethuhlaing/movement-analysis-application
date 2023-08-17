@@ -1,4 +1,8 @@
-user_data = { 
+def checkFirstTime():
+    if USER_DATA["dataframe"]["reference_df"] == None :
+        return True
+    return False
+USER_DATA = { 
     "headingData" : {
         "project_name": "House Riding",
         "project_creator": "Ye Thu"
@@ -6,12 +10,12 @@ user_data = {
     "informationData": {
         "height": 34,
         "weight" : 23,
-        "student_name": "adsasdfdasf"
+        "student_name": "Toni"
     } ,
     "visualizationData": {
         "categories": ["Joint Angles XZY"],
         "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
-        "scenerio": ["Horse Riding"],
+        "scenario": "Horse Trotting",
         "duration": 5000,
         "starting_time": 20,
         "Graph_type": "Single Graph" , 
@@ -21,9 +25,10 @@ user_data = {
         "student_name": "Toni",
         "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
     },
-    "dataframe": {
-        "reference_df": [],
-        "student_df": []
+    "dataframe" : {
+        "reference_df": None,
+        "student_df": None,
+        "status_df": None
     },
     "summary_data": {
         "category" : [],
@@ -32,6 +37,6 @@ user_data = {
         "maximum_time": [] ,
         "minimum_duration": [] ,
         "optimal_duration": [],
-        "maximum_duration":[] ,
+        "maximum_duration":[] ,  
     }
 }

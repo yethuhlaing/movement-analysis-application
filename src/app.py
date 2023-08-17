@@ -3,6 +3,9 @@ from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
 from landing_page import LandingPage
 from project_creation import ProjectCreation
+from database.database import create_tables
+from configparser import ConfigParser
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -18,6 +21,13 @@ class App(tk.Tk):
         filepath = '../assets/lab-logo.png'
         p1 = PhotoImage(file=filepath)
         self.iconphoto(False, p1)
+
+        # Database Initialization
+        config = ConfigParser()
+        config.read('config.ini')
+        db_path = config.get('Database', 'database_path')
+        create_tables(db_path)
+
 
         # Create instances of the LandingPage
         self.landing_page = None
