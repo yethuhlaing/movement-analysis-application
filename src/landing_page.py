@@ -54,10 +54,30 @@ class LandingPage(ttk.Frame):
 
         self.project_creator_entry = ttk.Entry(overlay_canvas)
         self.project_creator_entry.pack()
+        # Create a frame for recent projects
+        recent_projects_frame = ttk.Frame(overlay_canvas)
+        recent_projects_frame.pack()
+
+        # Label for the recent projects section
+        recent_projects_label = tk.Label(recent_projects_frame, text="Recent Projects", font=font.Font(size=15))
+        recent_projects_label.pack()
+
+        # Listbox to display recent projects
+        self.recent_projects_listbox = tk.Listbox(recent_projects_frame, selectmode=tk.SINGLE)
+        self.recent_projects_listbox.pack(fill="both", expand=True)
+
+        # IMPLEMENT: get the actual projects from the db
+        # Also choose button that does something with the project
+        # Clean up the outlook of the thing aswell
+        sample_projects = ["Project A", "Project B", "Project C"]
+        for project in sample_projects:
+            self.recent_projects_listbox.insert(tk.END, project)
 
         # Start Button
-        start_button = tk.Button(overlay_canvas, text="Start", bg="#aeefdc", bd=0, width=20, padx=20, command=self.start_app)
+        start_button = tk.Button(overlay_canvas, text="Create new", bg="#aeefdc", bd=0, width=20, padx=20, command=self.start_app)
         start_button.pack(pady=20)
+
+
 
     def start_app(self):
         project_name = self.project_name_entry.get()

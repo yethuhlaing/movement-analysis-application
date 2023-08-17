@@ -6,13 +6,16 @@ COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class ExcelFileInputWidget(tk.Label):
     def __init__(self, parent):
         super().__init__(parent, text="Click to select Excel files.", bg="white")
+        self.default_bg = "white"
         self.configure(cursor="hand2")
         self.bind("<Button-1>", self.select_file)
 
     def select_file(self, event):
         file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
         if file_path:
-            print("Selected file:", file_path)
+            self.configure(bg="green")  # Change background color to green
+            trimmed_filename = file_path.rstrip('/').split('/')[-1]
+            self["text"] = trimmed_filename
             self.process_excel(file_path)
 
     def process_excel(self, file_path):
@@ -65,8 +68,8 @@ class ProjectCreation(ttk.Frame):
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
 
         #File drop widget
-        self.excel_widget = ExcelFileInputWidget(self)
-        self.excel_widget.grid(row=3, column=0, padx=50, pady=30, sticky='nsew')
+        self.refrence_excel_widget = ExcelFileInputWidget(self)
+        self.refrence_excel_widget.grid(row=3, column=0, padx=50, pady=30, sticky='nsew')
 
         # Project name text as title
         project_title = ttk.Label(self, text=project_name, font=font.Font(size=25))
@@ -125,31 +128,6 @@ class ProjectCreation(ttk.Frame):
         size_dropdown = ttk.Combobox(graph_frame, textvariable=self.size_var, values=size_options, state="readonly", width=20)
         size_dropdown.grid(row=1, column=1, sticky='w')
 
-        # Create a LabelFrame for the "Reference Information" section
-        reference_frame = ttk.LabelFrame(self, text="Reference Information", padding=(10, 10))
-        reference_frame.grid(row=2, column=1, padx=50, pady=30, sticky='nsew', columnspan=2)
-
-        # Heading "Name" with a text box
-        name_label = tk.Label(reference_frame, text="Name", font=font.Font(size=12), pady=5)
-        name_label.grid(row=0, column=0, sticky='w')
-
-        self.name_var = tk.StringVar(value="")
-        name_entry = ttk.Entry(reference_frame, textvariable=self.name_var, width=20)
-        name_entry.grid(row=0, column=1, sticky='w')
-
-        # Heading "Upload Reference Data" with a drag and drop box
-        def on_file_drop(event):
-            file_path = event.data
-            print("Uploaded File Path:", file_path)
-
-        drop_box_label = tk.Label(reference_frame, text="Upload Reference Data", font=font.Font(size=12), pady=5)
-        drop_box_label.grid(row=1, column=0, sticky='w')
-
-        drop_box_frame = ttk.Frame(reference_frame, width=200, height=100, relief='sunken', borderwidth=2)
-        drop_box_frame.grid(row=1, column=1, sticky='w')
-
-        drop_box_frame.bind("<<Drop>>", on_file_drop)  # Use "DND_DND_RELEASE" event type
-
         # Create a LabelFrame for the "Student Information" section
         student_frame = ttk.LabelFrame(self, text="Student Information", padding=(10, 10))
         student_frame.grid(row=3, column=1, padx=50, pady=30, sticky='nsew', columnspan=2)
@@ -191,7 +169,7 @@ class ProjectCreation(ttk.Frame):
 
         student_drop_box_frame.bind("<<Drop>>", on_student_data_drop)  # Use "DND_DND_RELEASE" event type
 
-        start_button = tk.Button(self, text="Start", bg=COLOR, bd=0, width=20, padx=20,
+        start_button = tk.Button(self, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
                                  command=lambda: self.on_start_button_click())
         start_button.grid(row=4, column=1, columnspan=2, pady=20)
 

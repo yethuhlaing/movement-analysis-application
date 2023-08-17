@@ -20,13 +20,12 @@ class App(tk.Tk):
         self.iconphoto(False, p1)
 
         # Create instances of the LandingPage
-        self.landing_page = None
+        self.landing_page = LandingPage(self)
         self.project_creation = None
+        self.data_visualization = None
 
-        self.data_visualization = DataVisualization()
         # Show the landing page initially using pack
-        # self.landing_page.pack(expand=True, fill="both")
-        self.data_visualization.pack(expand=True, fill="both")
+        self.landing_page.pack(expand=True, fill="both")
 
     # functions to switch between frames
     def show_project_creation(self, project_name):
