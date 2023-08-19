@@ -5,18 +5,18 @@ def checkFirstTime():
 
 USER_DATA = { 
     "headingData" : {
-        "project_name": "Running",
+        "project_name": "Swimming",
         "project_creator": "Ye Thu"
     },
     "informationData": {
         "height": 34,
         "weight" : 23,
-        "student_name": "Julia"
+        "student_name": "James"
     } ,
     "visualizationData": {
         "categories": ["Joint Angles XZY"],
         "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
-        "scenario": "Sprinting",
+        "scenario": "200Metres",
         "duration": 1000,
         "starting_time": 20,
         "Graph_type": "Single Graph" , 
