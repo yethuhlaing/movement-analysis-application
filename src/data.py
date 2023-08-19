@@ -2,21 +2,22 @@ def checkFirstTime():
     if USER_DATA["dataframe"]["reference_df"] == None :
         return True
     return False
+
 USER_DATA = { 
     "headingData" : {
-        "project_name": "House Riding",
+        "project_name": "Running",
         "project_creator": "Ye Thu"
     },
     "informationData": {
         "height": 34,
         "weight" : 23,
-        "student_name": "Toni"
+        "student_name": "Julia"
     } ,
     "visualizationData": {
         "categories": ["Joint Angles XZY"],
         "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
-        "scenario": "Horse Trotting",
-        "duration": 5000,
+        "scenario": "Sprinting",
+        "duration": 1000,
         "starting_time": 20,
         "Graph_type": "Single Graph" , 
         # Graph type options =>["Single Graph", "Double Graph"],

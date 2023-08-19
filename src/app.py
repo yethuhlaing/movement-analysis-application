@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
-from landing_page import LandingPage
+from landing_page.landing_page import LandingPage
 from project_creation import ProjectCreation
 from database.database import create_tables
 from configparser import ConfigParser
@@ -30,13 +30,13 @@ class App(tk.Tk):
 
 
         # Create instances of the LandingPage
-        self.landing_page = LandingPage(self)
-        self.project_creation = None
-        self.data_visualization = None
+        # self.landing_page = LandingPage(self)
+        # self.project_creation = None
+        # self.data_visualization = None
 
         # Show the landing page initially using pack
-        self.landing_page.pack(expand=True, fill="both")
-
+        # self.landing_page.pack(expand=True, fill="both")
+        DataVisualization()
     # functions to switch between frames
     def show_project_creation(self, project_name):
         if self.project_creation:

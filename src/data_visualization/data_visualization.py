@@ -70,9 +70,9 @@ class InformationFrame(ttk.Frame):
         weight.pack()
         bmi = tk.Label(sub_frame1, text=f"BMI - {self.bmi}", justify='left', background="white", font=text_font)
         bmi.pack()
-        date = tk.Label(sub_frame2, text=f"Date - {current_date}", justify='right' , font=text_font, background="white" )
+        date = tk.Label(sub_frame2, text=f"Date - {current_date()}", justify='right' , font=text_font, background="white" )
         date.pack()
-        time = tk.Label(sub_frame2, text=f"Time - {current_time}", justify='right', font=text_font, background="white" )
+        time = tk.Label(sub_frame2, text=f"Time - {current_time()}", justify='right', font=text_font, background="white" )
         time.pack()
         creater = tk.Label(sub_frame2, text=f"Student - {self.student_name}", justify='right', font=text_font, background="white" )
         creater.pack()
@@ -88,50 +88,6 @@ class InformationFrame(ttk.Frame):
         saveButton.pack( pady=3, anchor="e", padx=60)
         savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
         savePDFButton.pack( pady=3, anchor="e", padx=60)
-            
-        # Testing for History List
-        result = retreiveHistory(self.db_path)
-        project_name = result[0] 
-        projects = selectAllProject(self.db_path)
-        selected = tk.StringVar(optionFrame)
-        selected.set(projects[0])
-
-        combobox = ttk.Combobox(optionFrame, textvariable=selected, values=projects, font=('Bookman Old Style',12))
-        trv = ttk.Treeview(optionFrame, columns=(1,2,3), height=15, show="headings")
-
-        trv.column(1, anchor="center", stretch="no", width=100)
-        trv.column(2, anchor="center", stretch="no", width=100)
-        trv.column(3, anchor="center", stretch="no", width=100)
-        trv.heading(1, text="Project")
-        trv.heading(2, text="Scenario")
-        trv.heading(3, text="Student")
-
-        for project in projects:
-            trv.insert('','end', value=(project[0], project[1], project[2]))
-        label_group = self.createHistoryList(optionFrame, result)
-        label_group.pack(padx=10, pady=10)
-    def search(eventObject):
-        # clear treeview
-        for item in trv.get_children():
-            trv.delete(item)
-
-        val = combobox.get()
-        c.execute("""SELECT * FROM `users_2` WHERE `firstname` LIKE %s or 
-                `lastname` like %s""",("%"+val+"%","%"+val+"%"))
-        users = c.fetchall()
-
-        for row in users:
-            trv.insert('',END, values=row)
-    def createHistoryList(self, parent, history_list):
-        frame = tk.Frame(parent)  # Create a frame to group labels
-        for history in history_list:
-            label = tk.Label(frame, text=history[0], font=font.Font(family="Bookman Old Style", size=12))
-            label.pack(anchor="w")  # Align labels to the left
-            label = tk.Label(frame, text=history[1], font=font.Font(family="Bookman Old Style", size=12))
-            label.pack(anchor="w") 
-            label = tk.Label(frame, text=history[2], font=font.Font(family="Bookman Old Style", size=12))
-            label.pack(anchor="w") 
-        return frame
     
     def saveMessageBox(self):
         if saveHistory(self.db_path):
