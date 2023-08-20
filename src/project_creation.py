@@ -142,10 +142,36 @@ class ProjectCreation(ttk.Frame):
             self.check_var_dict[option] = var
             checkbox = tk.Checkbutton(checkbox_frame, text=option, variable=var, bg="white", anchor='w')
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
-        # Confirm button for check boxes
-        # Confirm button for check boxes (you can add it here)
-        confirm_button = ttk.Button(creation_frame, text="Confirm") # command=function call to the column thing
-        confirm_button.grid(row=4, column=0, columnspan=2, pady=(10, 0))  # Adding some vertical padding
+
+        def on_confirm():
+            chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
+            spreadsheet_data = {}
+            for sheet_name in chosen_sheets:
+                pass
+            # After the confirm button is pressed, create and place the tab widget
+            tabs_frame = ttk.LabelFrame(self, text="Spreadsheet Tabs", padding=(10, 10))
+            tabs_frame.grid(row=0, column=5, padx=50, pady=30, rowspan=3, columnspan=2, sticky="nsew")
+
+            self.notebook = ttk.Notebook(tabs_frame)
+            self.notebook.grid(row=0, column=0, sticky="nsew")
+
+            for sheet_name, columns in self.spreadsheet_data.items():
+                tab_frame = ttk.Frame(self.notebook)
+                self.spreadsheet_tabs[sheet_name] = tab_frame
+
+                for column_idx, column in enumerate(columns):
+                    var = tk.BooleanVar(value=False)
+                    checkbox = tk.Checkbutton(tab_frame, text=column, variable=var)
+                    checkbox.grid(row=column_idx, column=0, sticky="w")
+
+                self.notebook.add(tab_frame, text=sheet_name)
+                self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+
+            # Initialize the current tab
+            self.current_tab = None
+            
+        confirm_button = ttk.Button(creation_frame, text="Confirm",command=on_confirm())
+        confirm_button.grid(row=4, column=0, columnspan=2, pady=(10, 0))  
 
     #GRAPH FRAME
         graph_frame = ttk.LabelFrame(self, text="Graphical Visualization", padding=(10, 10))
