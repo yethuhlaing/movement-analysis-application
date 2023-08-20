@@ -81,5 +81,6 @@ class LandingPage(ttk.Frame):
 
     def start_app(self):
         project_name = self.project_name_entry.get()
+        project_creator = self.project_creator_entry.get()
         # Switch to the project creation page and pass the project name
-        self.master.show_project_creation(project_name)
+        self.master.show_project_creation(project_name,project_creator)

@@ -3,12 +3,14 @@ from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
 from landing_page import LandingPage
 from project_creation import ProjectCreation
+from frame_to_pdf import capture_frame_page, images_to_pdf
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
         # configure the root window
         self.title('Movement Analysis')
-
+        #page height for pdf printing, addjusting might be needed
+        self.page_height = 800
         # setting tkinter window size
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
@@ -27,12 +29,13 @@ class App(tk.Tk):
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
 
+
     # functions to switch between frames
-    def show_project_creation(self, project_name):
+    def show_project_creation(self, project_name, project_creator):
         if self.project_creation:
             self.project_creation.destroy()
         self.landing_page.pack_forget()
-        self.project_creation = ProjectCreation(self, project_name=project_name)
+        self.project_creation = ProjectCreation(self, project_name=project_name,project_creator=project_creator)
         self.project_creation.pack(expand=True, fill="both")
 
     def show_visualize_data(self, data):
@@ -42,6 +45,14 @@ class App(tk.Tk):
         self.data_visualization = DataVisualization(self, data)
         self.data_visualization.pack(expand=True, fill="both")
 
+    def save_current_frame_as_pdf(self, output_path):
+        if self.data_visualization:
+            total_pages = 3  # Adjust based on the number of pages your content spans
+            all_captured_images = []
+            for page_number in range(1, total_pages + 1):
+                captured_image = capture_frame_page(self.data_visualization, self.page_height, page_number)
+                all_captured_images.append(captured_image)
+            images_to_pdf(all_captured_images, output_path)
 
 if __name__ == "__main__":
     app = App()

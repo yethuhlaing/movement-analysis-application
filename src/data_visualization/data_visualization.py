@@ -6,7 +6,7 @@ from data_analysis.data_analysis import *
 import sqlite3
 from data import *
 class DataVisualization(ttk.Frame):
-    def __init__(self):
+    def __init__(self,user_data):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
         self.pack(expand=True, fill="both")
@@ -73,7 +73,7 @@ class InformationFrame(ttk.Frame):
         backButton.pack( pady=3, anchor="e", padx=60)
         saveButton = tk.Button(optionFrame, text ="Save",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
         saveButton.pack( pady=3, anchor="e", padx=60)
-        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
+        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,command=self.master.save_current_frame_as_pdf("test.pdf"))
         savePDFButton.pack( pady=3, anchor="e", padx=60)
 
 
