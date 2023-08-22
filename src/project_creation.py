@@ -67,7 +67,40 @@ class ExcelFileInputWidget(tk.Label):
     def get_file_path(self):
         return self.file_path
 
-    
+class SpreadsheetPopup(tk.Toplevel):
+    def __init__(self, parent, spreadsheet_data):
+        super().__init__(parent)
+        self.parent = parent
+        self.spreadsheet_data = spreadsheet_data
+
+        self.title("Choose columns to exclude")
+        self.geometry("400x300")
+
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill="both", expand=True)
+
+        for sheet_name, columns in spreadsheet_data.items():
+            tab_frame = ttk.Frame(self.notebook)
+            self.notebook.add(tab_frame, text=sheet_name)
+            
+            listbox = tk.Listbox(tab_frame, selectmode=tk.MULTIPLE)
+            listbox.pack(fill="both", expand=True)
+            
+            for column in columns:
+                listbox.insert(tk.END, column)
+                
+        confirm_columns_button = ttk.Button(self, text="Confirm Columns", command=self.confirm_columns)
+        confirm_columns_button.pack(pady=10)
+        
+    def confirm_columns(self):
+        chosen_columns = {}
+        for i, sheet_name in enumerate(self.spreadsheet_data.keys()):
+            listbox = self.notebook.winfo_children()[i].winfo_children()[0]
+            selected_indices = listbox.curselection()
+            selected_columns = [listbox.get(idx) for idx in selected_indices]
+            chosen_columns[sheet_name] = selected_columns
+        self.parent.on_confirm_columns(chosen_columns)
+        self.destroy()
 class ProjectCreation(ttk.Frame):
     def __init__(self, parent, project_name,project_creator):
         tk.Frame.__init__(self, parent, bg="white")
@@ -200,48 +233,22 @@ class ProjectCreation(ttk.Frame):
         start_button = tk.Button(self, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
                                  command=lambda: self.on_start_button_click())
         start_button.grid(row=4, column=1, columnspan=2, pady=20)
-        
+
     def on_confirm(self):
-            chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
-            spreadsheet_data = {}
-            # Load data and extract column names for each chosen sheet
-            for sheet_name in chosen_sheets:
-                try:
-                    df = pd.read_excel(self.refrence_excel_widget.file_path, engine='openpyxl', sheet_name=sheet_name)
-                    columns = df.columns.tolist()
-                    spreadsheet_data[sheet_name] = columns
-                except Exception as e:
-                    print(f"Error loading sheet '{sheet_name}': {e}")
+        chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
+        spreadsheet_data = {}
+        
+        # Load data and extract column names for each chosen sheet
+        for sheet_name in chosen_sheets:
+            try:
+                df = pd.read_excel(self.refrence_excel_widget.file_path, engine='openpyxl', sheet_name=sheet_name)
+                columns = df.columns.tolist()
+                spreadsheet_data[sheet_name] = columns
+            except Exception as e:
+                print(f"Error loading sheet '{sheet_name}': {e}")
 
-        # TABS_FRAME
-            tabs_frame = ttk.LabelFrame(self, text="Spreadsheet Tabs", padding=(10, 10))
-            tabs_frame.grid(row=0, column=5, padx=50, pady=30, rowspan=3, columnspan=2, sticky="nsew")
-
-            self.notebook = ttk.Notebook(tabs_frame)
-            self.notebook.grid(row=0, column=0, sticky="nsew")
-
-            for sheet_name, columns in spreadsheet_data.items():
-                tab_frame = ttk.Frame(self.notebook)
-                self.spreadsheet_tabs[sheet_name] = tab_frame
-
-                num_columns = 3  # Change this to the desired number of columns
-                num_rows = (len(columns) + num_columns - 1) // num_columns  # Divide and round up
-
-                for row in range(num_rows):
-                    for col in range(num_columns):
-                        index = row * num_columns + col
-                        if index < len(columns):
-                            column = columns[index]
-                            var = tk.BooleanVar(value=True)
-                            checkbox = tk.Checkbutton(tab_frame, text=column, variable=var)
-                            checkbox.grid(row=row, column=col, sticky="w")
-
-                self.notebook.add(tab_frame, text=sheet_name)
-
-            self.current_tab = None
-
-            confirm_columns_button = ttk.Button(tabs_frame, text="Confirm Columns")#, command=self.on_confirm_columns(spreadsheet_data))
-            confirm_columns_button.grid(row=1, column=0, columnspan=2, pady=10)
+        # Call the popup dialog
+        popup = SpreadsheetPopup(self, spreadsheet_data)
 
     def on_start_button_click(self):
         # Gets selected checkboxes for sheet names
