@@ -28,7 +28,7 @@ class TimeSliderWidget(ttk.Frame):
         self.result_label.config(text=f"Selected Time: {selected_time:.2f} seconds")
 
 class ExcelFileInputWidget(tk.Label):
-    def __init__(self, parent, time_slider_widget):
+    def __init__(self, parent, time_slider_widget, data_type):
         super().__init__(parent, text="Click to select Excel files.", bg="white")
         self.default_bg = "white"
         self.configure(cursor="hand2")
@@ -37,6 +37,7 @@ class ExcelFileInputWidget(tk.Label):
         self.frame_count = None
         self.frame_rate = None
         self.file_path = None
+        self.data_type = data_type
 
     def select_file(self, event):
         file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
@@ -44,7 +45,8 @@ class ExcelFileInputWidget(tk.Label):
             self.configure(bg="green")  # Change background color to green
             trimmed_filename = file_path.rstrip('/').split('/')[-1]
             self["text"] = trimmed_filename
-            self.process_excel(file_path)
+            if self.data_type == "refrence":
+                self.process_excel(file_path)
 
     def process_excel(self, file_path):
         try:
@@ -62,6 +64,8 @@ class ExcelFileInputWidget(tk.Label):
         except Exception as e:
             print(f"Error loading Excel file: {e}")
             return None, None
+    def get_file_path(self):
+        return self.file_path
 
     
 class ProjectCreation(ttk.Frame):
@@ -70,6 +74,7 @@ class ProjectCreation(ttk.Frame):
         self.project_name = project_name
         self.project_creator = project_creator
         self.data = []
+        self.spreadsheet_tabs = {}
         self.create_widgets()
         self.pack(expand=True, fill="both")
 
@@ -108,7 +113,7 @@ class ProjectCreation(ttk.Frame):
         # File drop widget
         refrence_excel_label = ttk.Label(creation_frame, text="Reference Excel", font=font.Font(size=12))
         refrence_excel_label.grid(row=2, column=0, sticky='w')
-        self.refrence_excel_widget = ExcelFileInputWidget(creation_frame, time_slider_widget)
+        self.refrence_excel_widget = ExcelFileInputWidget(creation_frame, time_slider_widget,"refrence")
         self.refrence_excel_widget.grid(row=2, column=1, padx=10, pady=10, sticky='w')
 
         # Create a LabelFrame to group the checkboxes
@@ -143,35 +148,8 @@ class ProjectCreation(ttk.Frame):
             checkbox = tk.Checkbutton(checkbox_frame, text=option, variable=var, bg="white", anchor='w')
             checkbox.grid(row=idx // 2, column=idx % 2, sticky='w')
 
-        def on_confirm():
-            chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
-            spreadsheet_data = {}
-            for sheet_name in chosen_sheets:
-                pass
-            # After the confirm button is pressed, create and place the tab widget
-            tabs_frame = ttk.LabelFrame(self, text="Spreadsheet Tabs", padding=(10, 10))
-            tabs_frame.grid(row=0, column=5, padx=50, pady=30, rowspan=3, columnspan=2, sticky="nsew")
-
-            self.notebook = ttk.Notebook(tabs_frame)
-            self.notebook.grid(row=0, column=0, sticky="nsew")
-
-            for sheet_name, columns in self.spreadsheet_data.items():
-                tab_frame = ttk.Frame(self.notebook)
-                self.spreadsheet_tabs[sheet_name] = tab_frame
-
-                for column_idx, column in enumerate(columns):
-                    var = tk.BooleanVar(value=False)
-                    checkbox = tk.Checkbutton(tab_frame, text=column, variable=var)
-                    checkbox.grid(row=column_idx, column=0, sticky="w")
-
-                self.notebook.add(tab_frame, text=sheet_name)
-                self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-
-            # Initialize the current tab
-            self.current_tab = None
-            
-        confirm_button = ttk.Button(creation_frame, text="Confirm",command=on_confirm())
-        confirm_button.grid(row=4, column=0, columnspan=2, pady=(10, 0))  
+        confirm_button = ttk.Button(creation_frame, text="Confirm", command=self.on_confirm)
+        confirm_button.grid(row=4, column=0, columnspan=2, pady=(10, 0))
 
     #GRAPH FRAME
         graph_frame = ttk.LabelFrame(self, text="Graphical Visualization", padding=(10, 10))
@@ -213,13 +191,57 @@ class ProjectCreation(ttk.Frame):
         weight_entry = ttk.Entry(student_frame, textvariable=self.weight_var, width=20)
         weight_entry.grid(row=2, column=1, sticky='w')
 
-        # STUDENT EXCEL WIDGET HERE
-        # STUDENT EXCEL WIDGET HERE
-        # STUDENT EXCEL WIDGET HERE
+        # STUDENT EXCEL WIDGET
+        student_excel_label = ttk.Label(student_frame, text="Student Excel", font=font.Font(size=12))
+        student_excel_label.grid(row=3, column=0, sticky='w')
+        self.student_excel_widget = ExcelFileInputWidget(student_frame, time_slider_widget,"student")
+        self.student_excel_widget.grid(row=3, column=1, padx=10, pady=10, sticky='w')
 
         start_button = tk.Button(self, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
                                  command=lambda: self.on_start_button_click())
         start_button.grid(row=4, column=1, columnspan=2, pady=20)
+        
+    def on_confirm(self):
+            chosen_sheets = [option for option, var in self.check_var_dict.items() if var.get()]
+            spreadsheet_data = {}
+            # Load data and extract column names for each chosen sheet
+            for sheet_name in chosen_sheets:
+                try:
+                    df = pd.read_excel(self.refrence_excel_widget.file_path, engine='openpyxl', sheet_name=sheet_name)
+                    columns = df.columns.tolist()
+                    spreadsheet_data[sheet_name] = columns
+                except Exception as e:
+                    print(f"Error loading sheet '{sheet_name}': {e}")
+
+        # TABS_FRAME
+            tabs_frame = ttk.LabelFrame(self, text="Spreadsheet Tabs", padding=(10, 10))
+            tabs_frame.grid(row=0, column=5, padx=50, pady=30, rowspan=3, columnspan=2, sticky="nsew")
+
+            self.notebook = ttk.Notebook(tabs_frame)
+            self.notebook.grid(row=0, column=0, sticky="nsew")
+
+            for sheet_name, columns in spreadsheet_data.items():
+                tab_frame = ttk.Frame(self.notebook)
+                self.spreadsheet_tabs[sheet_name] = tab_frame
+
+                num_columns = 3  # Change this to the desired number of columns
+                num_rows = (len(columns) + num_columns - 1) // num_columns  # Divide and round up
+
+                for row in range(num_rows):
+                    for col in range(num_columns):
+                        index = row * num_columns + col
+                        if index < len(columns):
+                            column = columns[index]
+                            var = tk.BooleanVar(value=True)
+                            checkbox = tk.Checkbutton(tab_frame, text=column, variable=var)
+                            checkbox.grid(row=row, column=col, sticky="w")
+
+                self.notebook.add(tab_frame, text=sheet_name)
+
+            self.current_tab = None
+
+            confirm_columns_button = ttk.Button(tabs_frame, text="Confirm Columns")#, command=self.on_confirm_columns(spreadsheet_data))
+            confirm_columns_button.grid(row=1, column=0, columnspan=2, pady=10)
 
     def on_start_button_click(self):
         # Gets selected checkboxes for sheet names
@@ -230,21 +252,34 @@ class ProjectCreation(ttk.Frame):
                 "project_creator": self.project_creator
             },
             "informationData": {
-                "height": self.height_var.get(),
-                "weight" : self.weight_var.get(),
+                "height": int(self.height_var.get()),
+                "weight" : int(self.weight_var.get()),
                 "student_name": self.student_name_var.get()
             } ,
             "visualizationData": {
-                "category": chosen_sheets,
-                "movement": ["L5S1 Flexion/Extension",  ], #Implement reading function
+                "categories": chosen_sheets,
+                "movements": ["L5S1 Flexion/Extension",  ], #Implement reading function
                 "scenerio": [self.scenario_name_var.get()], #Idk why this is an array
                 "duration": self.refrence_excel_widget.frame_count,
                 "starting_time": 0.2,                      #Implement
                 "Graph_type": self.graph_var.get(),
                 "ref_name": "kati",               
-                "ref_file": self.refrence_excel_widget.file_path,
+                "ref_file": self.refrence_excel_widget.file_path, #Could be smart to pass the Dataframe instead of filename
                 "student_name": self.student_name_var.get(),
-                "student_file": "../../data/Student downsampled data/simulator riding/Sudent1-003Harju ext walk.xlsx"
+                "student_file": self.student_excel_widget.get_file_path()
+            },
+            "dataframe": {
+                "reference_df": [],
+                "student_df": []
+            },
+            "summary_data": {
+                "category" : [],
+                "movement" : [],
+                "minimum_time" : [],
+                "maximum_time": [] ,
+                "minimum_duration": [] ,
+                "optimal_duration": [],
+                "maximum_duration":[] ,
             }
         }
         print(input_dict)

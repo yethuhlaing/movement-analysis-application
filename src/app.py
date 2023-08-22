@@ -42,7 +42,7 @@ class App(tk.Tk):
         if self.data_visualization:
             self.data_visualization.pack_forget()
         self.project_creation.pack_forget()
-        self.data_visualization = DataVisualization(self, data)
+        self.data_visualization = DataVisualization(data)
         self.data_visualization.pack(expand=True, fill="both")
 
     def save_current_frame_as_pdf(self, output_path):
