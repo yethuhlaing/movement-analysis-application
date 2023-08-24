@@ -6,11 +6,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from data_analysis.data_analysis import *
 import sqlite3
 from data import *
-from tkinter import messagebox
-from database.database import *
-from project_creation import ProjectCreation
 class DataVisualization(ttk.Frame):
-    def __init__(self):
+    def __init__(self,user_data):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
         self.pack(expand=True, fill="both")
@@ -20,8 +17,6 @@ class DataVisualization(ttk.Frame):
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
-
-
         InformationFrame(self)
         VisualizationFrame(self)
 
@@ -29,11 +24,6 @@ class DataVisualization(ttk.Frame):
 
 class InformationFrame(ttk.Frame):
     def __init__(self, parent):
-        # Database Path
-        config = ConfigParser()
-        config.read('config.ini')
-        self.db_path = config.get('Database', 'database_path')
-
         tk.Frame.__init__(self, parent, bg="white")
         
         informationData = getInformationData()
@@ -87,7 +77,7 @@ class InformationFrame(ttk.Frame):
         backButton.pack( pady=3, anchor="e", padx=60)
         saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
         saveButton.pack( pady=3, anchor="e", padx=60)
-        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
+        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,)#command=self.master.save_current_frame_as_pdf("test.pdf"))
         savePDFButton.pack( pady=3, anchor="e", padx=60)
     
     def saveMessageBox(self):
@@ -104,7 +94,7 @@ class InformationFrame(ttk.Frame):
 
 class VisualizationFrame(ttk.Frame):
     def __init__(self, parent):
-        self.visualizationData  = getVisualizationData()                
+        self.visualizationData  = user_data["visualizationData"]                    
 
         canvas = tk.Canvas(parent, bg="white", highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
@@ -119,17 +109,17 @@ class VisualizationFrame(ttk.Frame):
 
         self.isFirstTime = checkFirstTime()
         for category in self.visualizationData["categories"]:
-            for index, movement in enumerate(self.visualizationData["movements"]):
-                GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index)
+            for movement in self.visualizationData["movements"]:
+                GraphicalWidget(frame, category, movement, self.visualizationData) 
         SummaryWidget(frame)
-        # Update the scroll region  
+        # Update the scroll region
         frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all"))
 
 
 class GraphicalWidget(ttk.Frame):
-    def __init__(self, parent, category, movement, visualizationData, isFirstTime, index):
-        tk.Frame.__init__(self, parent, bg="white", pady=15)
+    def __init__(self, parent, category, movement, visualizationData ):
+        tk.Frame.__init__(self, parent, bg="white", pady=20)
         self.category = category
         self.movement = movement
         _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
@@ -170,7 +160,7 @@ class GraphicalWidget(ttk.Frame):
         category_label.pack()
 
         self.create_graph_widget(self.graph_frame)
-        self.create_information_widget(self.information_frame)
+        self.create_information_widget(self.information_frame,user_data)
 
     def create_graph_widget(self, parentFrame):
         self.parentFrame = parentFrame
@@ -228,7 +218,7 @@ class GraphicalWidget(ttk.Frame):
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack( fill=tk.BOTH, expand=True )
 
-    def create_information_widget(self, parentFrame):
+    def create_information_widget(self, parentFrame,user_data):
 
         text_font = font.Font(family="Bookman Old Style", size=10)
 
@@ -317,11 +307,11 @@ class GraphicalWidget(ttk.Frame):
 
 
 class SummaryWidget(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent,user_data):
         tk.Frame.__init__(self, parent, bg="white")
         self.pack(expand = True, fill = 'both', padx=10, pady=20)
-        self.create_table()
-    def create_table(self):
+        self.create_table(user_data)
+    def create_table(self,user_data):
         style = ttk.Style()
         text_fonts = font.Font(family="Bookman Old Style", size=10)
         style.configure("Treeview.Heading", font=text_fonts, rowheight=40, relief="flat")
