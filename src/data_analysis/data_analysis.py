@@ -13,7 +13,7 @@ def readCategory(file_path:str, category:str, movement: list, duration: int, sta
     return df.iloc[starting_rows:ending_rows]
 
 def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str, min_critical_value: float, max_critical_value: float, grid_line: bool, line_width: float , horizontal_line: bool = False):
-    fig, ax = plt.subplots(figsize= (12,5))
+    fig, ax = plt.subplots(figsize= (11,4))
     for (dataframe, dataframe_name) in zip(dataframes, dataframe_names):
         ax.plot(dataframe, label= dataframe_name, linewidth=1)
     ax.set_xlabel("Frames")
@@ -27,7 +27,7 @@ def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str,
     return fig
 
 def ComparisionGraph2(dataframes: list, dataframe_names: list[str], movement: str,min_critical_value, max_critical_value,grid_line: bool, line_width: float, horizontal_line: bool = False ):    
-    fig, axes = plt.subplots(1, len(dataframes), figsize= (12,5), sharey=True)
+    fig, axes = plt.subplots(1, len(dataframes), figsize= (11,4), sharey=True)
     for count, (dataframe,dataframe_names)  in enumerate(zip(dataframes,dataframe_names)):
         sns.lineplot(ax=axes[count], x= dataframe.index, y=movement, data=dataframe, linewidth=1)
         sns.set(style="whitegrid")
@@ -49,7 +49,7 @@ def calculateThreshold(df, category, min_critical_value, max_critical_value):
 
 def pieChart(statusDataframe, title: str = ""):    
     data = statusDataframe["Status"].value_counts()
-    fig = plt.figure()
+    fig = plt.figure(figsize= (4,4))
     explode = (0.05)
     for i in range(1, data.shape[0]):
         explode += 0.05
@@ -68,32 +68,32 @@ def pieChart(statusDataframe, title: str = ""):
     plt.title(title)
     return fig  
 
-def outputCriticalValues(dataframe, movement):
-    (row, col) = dataframe.shape
-    if (dataframe['Status']== "optimal").any():
-        Optimal_in_second = dataframe["Status"].value_counts()["optimal"]
+def outputCriticalValues(StatusDataframe, movement):
+    (row, col) = StatusDataframe.shape
+    if (StatusDataframe['Status']== "optimal").any():
+        Optimal_in_second = StatusDataframe["Status"].value_counts()["optimal"]
         Optimal = round(Optimal_in_second / 60, 1)
     else:
         Optimal = None
 
-    if (dataframe['Status']== "too high").any():
-        TooHigh_in_second = dataframe["Status"].value_counts()["too high"]
+    if (StatusDataframe['Status']== "too high").any():
+        TooHigh_in_second = StatusDataframe["Status"].value_counts()["too high"]
         TooHigh = round(TooHigh_in_second / 60, 1)
     else:
         TooHigh = None
 
-    if (dataframe['Status']== "too low").any():
-        TooLow_in_second = dataframe["Status"].value_counts()["too low"]
+    if (StatusDataframe['Status']== "too low").any():
+        TooLow_in_second = StatusDataframe["Status"].value_counts()["too low"]
         TooLow = round(TooLow_in_second / 60, 1)
     else:
         TooLow = None
     
-    minimum = dataframe[movement].min()
-    minimum_time_inSecond = dataframe[dataframe[movement] == minimum].index.tolist()[0]
-    minimum_time_inMinute = round(minimum_time_inSecond / 60, 1)
+    minimum = StatusDataframe[movement].min()
+    minimum_time_inSecond = StatusDataframe[StatusDataframe[movement] == minimum].index.tolist()[0]
+    minimum_time_inMinute = round(float(minimum_time_inSecond) / 60, 1)
     
-    maximum = dataframe[movement].max()
-    maximum_time_inSecond = dataframe[dataframe[movement] == maximum].index.tolist()[0]
-    maximum_time_inMinute =round(maximum_time_inSecond / 60, 1)
+    maximum = StatusDataframe[movement].max()
+    maximum_time_inSecond = StatusDataframe[StatusDataframe[movement] == maximum].index.tolist()[0]
+    maximum_time_inMinute =round(float(maximum_time_inSecond) / 60, 1)
 
     return Optimal, TooHigh, TooLow, minimum_time_inMinute, maximum_time_inMinute
