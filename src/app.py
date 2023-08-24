@@ -14,6 +14,7 @@ class App(tk.Tk):
         # configure the root window
         self.title('Movement Analysis')
 
+
         # setting tkinter window size
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
@@ -41,11 +42,14 @@ class App(tk.Tk):
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
         # DataVisualization()
+        # DataVisualization()
     # functions to switch between frames
+    def show_project_creation(self, project_name):
     def show_project_creation(self, project_name):
         if self.project_creation:
             self.project_creation.destroy()
         self.landing_page.pack_forget()
+        self.project_creation = ProjectCreation(self, project_name=project_name)
         self.project_creation = ProjectCreation(self, project_name=project_name)
         self.project_creation.pack(expand=True, fill="both")
 
@@ -53,7 +57,7 @@ class App(tk.Tk):
         if self.data_visualization:
             self.data_visualization.pack_forget()
         self.project_creation.pack_forget()
-        self.data_visualization = DataVisualization(self, data)
+        self.data_visualization = DataVisualization(self, self, data)
         self.data_visualization.pack(expand=True, fill="both")
 
 
