@@ -10,9 +10,6 @@ from data import *
 from tkinter import messagebox
 from database.database import *
 from project_creation import ProjectCreation
-=======
-#from data import *
->>>>>>> 00c20bbf928f09fb6ce50357b6c8e5070b3dc1a3
 class DataVisualization(ttk.Frame):
     def __init__(self,user_data):
         tk.Frame.__init__(self, bg="white")
@@ -223,10 +220,10 @@ class GraphicalWidget(ttk.Frame):
         else:
             print("Recenet HIstory")
             # Using the previous Dataframe from the USER_DATA
-            print(self.index)
             self.reference_df = getReference_df()[0][self.index]
             self.student_df = getStudent_df()[0][self.index]
             self.status_df = getStatus_df()[0][self.index]
+
             min_value = self.reference_df.min().min()
             max_value = self.reference_df.max().max()
 

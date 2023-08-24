@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
 from landing_page.landing_page import LandingPage
-from project_creation import ProjectCreation
+from project_creation.project_creation import ProjectCreation
 from database.database import create_tables
 from configparser import ConfigParser
 from data import *
