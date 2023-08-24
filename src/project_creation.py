@@ -172,10 +172,9 @@ class ProjectCreation(ttk.Frame):
         duration_label = tk.Label(general_frame, text="Duration", font=text_font, pady=5)
         duration_label.grid(row=2, column=0, sticky='w')
 
-        duration_options = ["1 hour", "2 hours", "3 hours"]
-        self.duration_var = tk.StringVar(value=duration_options[0])
-        duration_dropdown = ttk.Combobox(general_frame, textvariable=self.duration_var, values=duration_options, state="readonly", width=20)
-        duration_dropdown.grid(row=2, column=1, sticky='w')
+        self.duration_var = tk.StringVar(value="")
+        duration_entry = ttk.Entry(general_frame, textvariable=self.scenario_name_var, width=20)
+        duration_entry.grid(row=2, column=1, sticky='w')
 
         # TIME SLIDER for starting time
         time_slider_widget = TimeSliderWidget(general_frame)
@@ -344,7 +343,7 @@ class ProjectCreation(ttk.Frame):
                 "categories": chosen_sheets,
                 "movements": self.column_array,
                 "scenerio": [self.scenario_name_var.get()],
-                "duration": 30,
+                "duration": self.duration_var.get(),
                 "starting_time": self.refrence_excel_widget.time_slider_widget.slider.get(),                      #Implement
                 "Graph_type": self.graph_var.get(),
                 "ref_name": self.refrence_name_var.get(),               
