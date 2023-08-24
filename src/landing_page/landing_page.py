@@ -168,7 +168,7 @@ class LandingPage(ttk.Frame):
                 setReference_df(reference_df)
                 setStudent_df(student_df)
                 setStatus_df(status_df)
-
+                
                 # Switch to Data Visualization Page
                 DataVisualization()
                 self.pack_forget()

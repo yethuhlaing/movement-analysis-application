@@ -8,10 +8,7 @@ import sqlite3
 from data import *
 from tkinter import messagebox
 from database.database import *
-from project_creation import ProjectCreation
-=========
-#from data import *
->>>>>>>>> Temporary merge branch 2
+from project_creation.project_creation import ProjectCreation
 class DataVisualization(ttk.Frame):
     def __init__(self):
         tk.Frame.__init__(self, bg="white")
@@ -23,7 +20,6 @@ class DataVisualization(ttk.Frame):
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
-<<<<<<<<< Temporary merge branch 1
 
 
         InformationFrame(self)
@@ -38,9 +34,6 @@ class InformationFrame(ttk.Frame):
         config.read('config.ini')
         self.db_path = config.get('Database', 'database_path')
 
-=========
-    def __init__(self, parent,user_data):
->>>>>>>>> Temporary merge branch 2
         tk.Frame.__init__(self, parent, bg="white")
         
         informationData = getInformationData()
@@ -94,7 +87,7 @@ class InformationFrame(ttk.Frame):
         backButton.pack( pady=3, anchor="e", padx=60)
         saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
         saveButton.pack( pady=3, anchor="e", padx=60)
-        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
+        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,)#command=self.master.save_current_frame_as_pdf("test.pdf"))
         savePDFButton.pack( pady=3, anchor="e", padx=60)
     
     def saveMessageBox(self):
@@ -112,10 +105,6 @@ class InformationFrame(ttk.Frame):
 class VisualizationFrame(ttk.Frame):
     def __init__(self, parent):
         self.visualizationData  = getVisualizationData()                
-=========
-    def __init__(self, parent,user_data):
-        self.visualizationData  = user_data["visualizationData"]                    
->>>>>>>>> Temporary merge branch 2
 
         canvas = tk.Canvas(parent, bg="white", highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
@@ -130,29 +119,17 @@ class VisualizationFrame(ttk.Frame):
 
         self.isFirstTime = checkFirstTime()
         for category in self.visualizationData["categories"]:
-<<<<<<<<< Temporary merge branch 1
             for index, movement in enumerate(self.visualizationData["movements"]):
                 GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index)
         SummaryWidget(frame)
         # Update the scroll region  
-=========
-            for movement in self.visualizationData["movements"]:
-                GraphicalWidget(frame, category, movement, self.visualizationData,user_data) 
-        SummaryWidget(frame,user_data)
-        # Update the scroll region
->>>>>>>>> Temporary merge branch 2
         frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all"))
 
 
 class GraphicalWidget(ttk.Frame):
-<<<<<<<<< Temporary merge branch 1
     def __init__(self, parent, category, movement, visualizationData, isFirstTime, index):
         tk.Frame.__init__(self, parent, bg="white", pady=15)
-=========
-    def __init__(self, parent, category, movement, visualizationData,user_data):
-        tk.Frame.__init__(self, parent, bg="white", pady=20)
->>>>>>>>> Temporary merge branch 2
         self.category = category
         self.movement = movement
         _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
@@ -216,10 +193,10 @@ class GraphicalWidget(ttk.Frame):
         else:
             print("Recenet HIstory")
             # Using the previous Dataframe from the USER_DATA
-            print(self.index)
             self.reference_df = getReference_df()[0][self.index]
             self.student_df = getStudent_df()[0][self.index]
             self.status_df = getStatus_df()[0][self.index]
+
             min_value = self.reference_df.min().min()
             max_value = self.reference_df.max().max()
 
