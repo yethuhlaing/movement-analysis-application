@@ -45,7 +45,6 @@ class App(tk.Tk):
         # DataVisualization()
     # functions to switch between frames
     def show_project_creation(self, project_name):
-    def show_project_creation(self, project_name):
         if self.project_creation:
             self.project_creation.destroy()
         self.landing_page.pack_forget()
