@@ -1,37 +1,50 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-from utils import current_date, current_time, COLOR, STYLE_SHEETS
+from configparser import ConfigParser
+from utilities.utils import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from data_analysis.data_analysis import *
 import sqlite3
-#from data import *
+from data import *
+from tkinter import messagebox
+from database.database import *
+from project_creation import ProjectCreation
 class DataVisualization(ttk.Frame):
-    def __init__(self,user_data):
+    def __init__(self):
         tk.Frame.__init__(self, bg="white")
         self.configure(bg="white")
         self.pack(expand=True, fill="both")
-
-        headingData = user_data["headingData"]
+        headingData = getHeadingData()
         ## Heading 
         project_name, project_creator = headingData.values()
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
-        InformationFrame(self,user_data)
-        VisualizationFrame(self,user_data)
+
+
+        InformationFrame(self)
+        VisualizationFrame(self)
+
 
 
 class InformationFrame(ttk.Frame):
-    def __init__(self, parent,user_data):
+    def __init__(self, parent):
+        # Database Path
+        config = ConfigParser()
+        config.read('config.ini')
+        self.db_path = config.get('Database', 'database_path')
+
         tk.Frame.__init__(self, parent, bg="white")
-        informationData = user_data["informationData"]
+        
+        informationData = getInformationData()
         self.height, self.weight, self.student_name = informationData.values()
         self.bmi = round(self.weight / ((self.height/100) ** 2), 2)
         self.create_widgets()
         self.pack(expand = False, fill = 'both', pady = 20)
 
     def create_widgets(self):
-        text_font = font.Font(family="Bookman Old Style", size=13)
+
+        text_font = font.Font(family="Bookman Old Style", size=10)
         # Create the first frame
         infoFrame = tk.Frame(self, bg='red')
         infoFrame.grid(row=0, column=0, pady=0, sticky='nsew')
@@ -58,28 +71,40 @@ class InformationFrame(ttk.Frame):
         weight.pack()
         bmi = tk.Label(sub_frame1, text=f"BMI - {self.bmi}", justify='left', background="white", font=text_font)
         bmi.pack()
-        date = tk.Label(sub_frame2, text=f"Date - {current_date}", justify='right' , font=text_font, background="white" )
+        date = tk.Label(sub_frame2, text=f"Date - {current_date()}", justify='right' , font=text_font, background="white" )
         date.pack()
-        time = tk.Label(sub_frame2, text=f"Time - {current_time}", justify='right', font=text_font, background="white" )
+        time = tk.Label(sub_frame2, text=f"Time - {current_time()}", justify='right', font=text_font, background="white" )
         time.pack()
         creater = tk.Label(sub_frame2, text=f"Student - {self.student_name}", justify='right', font=text_font, background="white" )
         creater.pack()
 
         # Create the second frame
+
         optionFrame = tk.Frame(self, background="white" )
         optionFrame.grid(row=0, column=1, sticky='nsew')
         button_font = font.Font(family="Bookman Old Style", size=10)
-        backButton = tk.Button(optionFrame, text ="Back", bg= COLOR, bd=0, width=20, padx=30, font=button_font )
+        backButton = tk.Button(optionFrame, text ="Back", bg= COLOR, bd=0, width=20, padx=30, font=button_font , command=lambda: self.previousPage())
         backButton.pack( pady=3, anchor="e", padx=60)
-        saveButton = tk.Button(optionFrame, text ="Save",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
+        saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
         saveButton.pack( pady=3, anchor="e", padx=60)
-        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,)#command=self.master.save_current_frame_as_pdf("test.pdf"))
+        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font)
         savePDFButton.pack( pady=3, anchor="e", padx=60)
+    
+    def saveMessageBox(self):
+        if insertHistory(self.db_path):
+            messagebox.showinfo("Success", "The user data is saved successfully!")
+        else:
+            messagebox.showerror("Error", "There is some error in saving your data!")
+
+    def previousPage(self):
+        # ProjectCreation()
+        pass
+
 
 
 class VisualizationFrame(ttk.Frame):
-    def __init__(self, parent,user_data):
-        self.visualizationData  = user_data["visualizationData"]                    
+    def __init__(self, parent):
+        self.visualizationData  = getVisualizationData()                
 
         canvas = tk.Canvas(parent, bg="white", highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
@@ -92,25 +117,27 @@ class VisualizationFrame(ttk.Frame):
         frame.pack(fill="both", expand=True)
         canvas.create_window((0, 0), window=frame, anchor="nw")
 
+        self.isFirstTime = checkFirstTime()
         for category in self.visualizationData["categories"]:
-            for movement in self.visualizationData["movements"]:
-                GraphicalWidget(frame, category, movement, self.visualizationData,user_data) 
-        SummaryWidget(frame,user_data)
-        # Update the scroll region
+            for index, movement in enumerate(self.visualizationData["movements"]):
+                GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index)
+        SummaryWidget(frame)
+        # Update the scroll region  
         frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all"))
 
 
 class GraphicalWidget(ttk.Frame):
-    def __init__(self, parent, category, movement, visualizationData,user_data):
-        tk.Frame.__init__(self, parent, bg="white", pady=20)
+    def __init__(self, parent, category, movement, visualizationData, isFirstTime, index):
+        tk.Frame.__init__(self, parent, bg="white", pady=15)
         self.category = category
         self.movement = movement
         _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
-
+        self.isFirstTime = isFirstTime
+        self.index = index
         # Appending Data to Summary Table
-        user_data["summary_data"]["category"].append(self.category)
-        user_data["summary_data"]["movement"].append(self.movement)
+        setEachUserData("summaryData", "category", True, self.category )
+        setEachUserData("summaryData", "movement", True, self.movement )
 
         self.min_critical = tk.DoubleVar()
         self.line_width = tk.DoubleVar()
@@ -138,24 +165,40 @@ class GraphicalWidget(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
         # Initialize the content
-        text_font = font.Font(family="Bookman Old Style", size=12)
+        text_font = font.Font(family="Bookman Old Style", size=10)
         category_label = tk.Label(self.heading_frame, text= self.category, justify='center', background=COLOR , font=text_font, pady=5)
         category_label.pack()
 
         self.create_graph_widget(self.graph_frame)
-        self.create_information_widget(self.information_frame,user_data)
+        self.create_information_widget(self.information_frame)
 
     def create_graph_widget(self, parentFrame):
         self.parentFrame = parentFrame
         # Set the grid weights to control the resizing behavior
         self.parentFrame.grid_rowconfigure(0, weight=1)
-        self.parentFrame.grid_columnconfigure(0, weight=7)
-        self.parentFrame.grid_columnconfigure(1, weight=3)
-
-        self.reference_df = readCategory(self.ref_file, self.category, ["Frame", self.movement], self.duration, self.starting_time)
-        self.student_df = readCategory(self.student_file,self.category, ["Frame", self.movement], self.duration, self.starting_time)
-        min_value = self.reference_df.min().min()
-        max_value = self.reference_df.max().max() 
+        self.parentFrame.grid_columnconfigure(0, weight=60)
+        self.parentFrame.grid_columnconfigure(1, weight=40)
+        
+        if self.isFirstTime:
+            # Creating dataframe from the file
+            self.reference_df = readCategory(self.ref_file, self.category, ["Frame", self.movement], self.duration, self.starting_time)
+            self.student_df = readCategory(self.student_file,self.category, ["Frame", self.movement], self.duration, self.starting_time)
+            min_value = self.reference_df.min().min()
+            max_value = self.reference_df.max().max() 
+            self.status_df = calculateThreshold(self.student_df, self.movement, min_value, max_value)
+            # Appending Dataframe into the USER_DATA
+            setReference_df(self.reference_df) 
+            setStudent_df(self.student_df) 
+            setStatus_df(self.status_df) 
+        else:
+            print("Recenet HIstory")
+            # Using the previous Dataframe from the USER_DATA
+            print(self.index)
+            self.reference_df = getReference_df()[0][self.index]
+            self.student_df = getStudent_df()[0][self.index]
+            self.status_df = getStatus_df()[0][self.index]
+            min_value = self.reference_df.min().min()
+            max_value = self.reference_df.max().max()
 
         # Create the Graph Frame 
         self.BarGraph = tk.Frame(self.parentFrame, bg='white')
@@ -165,8 +208,7 @@ class GraphicalWidget(ttk.Frame):
         # Create the Piechart frame
         self.PieChart = tk.Frame(self.parentFrame, bg='white')
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
-        self.statusDataframe = calculateThreshold(self.student_df, self.movement, min_value, max_value)
-        self.initializePieChart(self.statusDataframe, self.PieChart)
+        self.initializePieChart(self.status_df, self.PieChart)
 
     def initializeBarGraph(self, parent, min_value, max_value, grid_line, line_width, horizontal_line):
         if self.Graph_type == "Single Graph":
@@ -180,22 +222,21 @@ class GraphicalWidget(ttk.Frame):
             canvas_widget = canvas.get_tk_widget()
             canvas_widget.pack(fill=tk.BOTH, expand=True)
 
-    def initializePieChart(self, statusDataframe, parent):
-        fig = pieChart(statusDataframe)
+    def initializePieChart(self, status_df, parent):
+        fig = pieChart(status_df)
         canvas = FigureCanvasTkAgg(fig, master=parent )
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack( fill=tk.BOTH, expand=True )
 
-    def create_information_widget(self, parentFrame,user_data):
+    def create_information_widget(self, parentFrame):
 
-        text_font = font.Font(family="Bookman Old Style", size=13)
+        text_font = font.Font(family="Bookman Old Style", size=10)
 
         parentFrame.grid_rowconfigure(0, weight=1)
         parentFrame.grid_columnconfigure(0, weight=3)
         parentFrame.grid_columnconfigure(1, weight=3)
         parentFrame.grid_columnconfigure(2, weight=3)   
-        parentFrame.grid_columnconfigure(3, weight=3)   
-        parentFrame.grid_columnconfigure(4, weight=3)   
+        parentFrame.grid_columnconfigure(3, weight=5)   
 
         thresholdFrame = tk.Frame(parentFrame, bg='white')
         thresholdFrame.grid(row=0, column=0, pady=0, sticky='nsew')
@@ -214,30 +255,9 @@ class GraphicalWidget(ttk.Frame):
         max_critical_widget = ttk.Entry(max_critical_frame, width=20, textvariable=self.max_critical, background="white")
         max_critical_widget.grid(row=0, column=1, sticky='w')
 
-
-        # # Create the second frame
-        informationFrame = tk.Frame(parentFrame, background="white" )
-        informationFrame.grid(row=0, column=1, sticky='nsew')
-
-        line_width_frame  = ttk.Frame(informationFrame)
-        line_width_frame.grid(row=0, column=0, padx=10, pady=10)
-        line_width_label = tk.Label(line_width_frame, text="Line Width", font=text_font, background="white")
-        line_width_label.grid(row=0, column=0, sticky='w') 
-        line_width_widget = ttk.Entry(line_width_frame, width=25, textvariable=self.line_width, background="white")
-        line_width_widget.grid(row=0, column=1, sticky='w')
-
-        graph_style_frame  = ttk.Frame(informationFrame)
-        graph_style_frame.grid(row=1, column=0, padx=10, pady=10)
-        graph_style_label = tk.Label(graph_style_frame, text="Graph Style", font=text_font, background="white")
-        graph_style_label.grid(row=0, column=0, sticky='w')
-        self.graph_style_widget = ttk.Combobox(graph_style_frame,width=20, background="white", textvariable=self.graph_style,)
-        self.graph_style_widget["values"] = STYLE_SHEETS
-        self.graph_style_widget.current()
-        self.graph_style_widget.grid(row=0, column=1, sticky='w')
-
         # Create the second frame
         informationFrame2 = tk.Frame(parentFrame, background="white" )
-        informationFrame2.grid(row=0, column=2, sticky='nsew')
+        informationFrame2.grid(row=0, column=1, sticky='nsew')
         style = ttk.Style(informationFrame2)
         style.configure("Custom.TCheckbutton", background="white", font= text_font)
         grid_line_checkbox = ttk.Checkbutton(informationFrame2, text="Grid Line", variable=self.grid_line, style="Custom.TCheckbutton")
@@ -246,36 +266,36 @@ class GraphicalWidget(ttk.Frame):
         horizontal_line_checkbox.pack(anchor=tk.W, padx=10, pady=10)
 
         UpdateButtonFrame = tk.Frame(parentFrame, background="white" )
-        UpdateButtonFrame.grid(row=0, column=3, sticky='nsew')
+        UpdateButtonFrame.grid(row=0, column=2, sticky='nsew')
         button_font = font.Font(family="Bookman Old Style", size=10)
         update_button = tk.Button(UpdateButtonFrame, text="Update",bg= COLOR,bd=0,width=20,padx=30, command=self.UpdateGraphInformation, font=button_font)
         update_button.pack()
 
         outputFrame = tk.Frame(parentFrame, background="white" )
-        outputFrame.grid(row=0, column=4, sticky='nsew')
-        Optimal, TooHigh, TooLow, minimum_time_inMinute, maximum_time_inMinute = outputCriticalValues(self.statusDataframe, self.movement)
+        outputFrame.grid(row=0, column=3, sticky='nsew')
+        Optimal, TooHigh, TooLow, minimum_time_inMinute, maximum_time_inMinute = outputCriticalValues(self.status_df, self.movement)
         # Appending Data to Summary Table
-        user_data["summary_data"]["minimum_time"].append(minimum_time_inMinute)
-        user_data["summary_data"]["maximum_time"].append(maximum_time_inMinute)
-        user_data["summary_data"]["minimum_duration"].append(TooLow)
-        user_data["summary_data"]["optimal_duration"].append(Optimal)
-        user_data["summary_data"]["maximum_duration"].append(TooHigh)
+        setEachUserData("summaryData", "minimum_time", True, minimum_time_inMinute)
+        setEachUserData("summaryData", "maximum_time", True, maximum_time_inMinute)
+        setEachUserData("summaryData", "minimum_duration", True, TooLow)
+        setEachUserData("summaryData", "optimal_duration", True, Optimal)
+        setEachUserData("summaryData", "maximum_duration", True, TooHigh)
         if TooHigh != None:
-            TooHighText = f"Total duration for  'Too high' - {TooHigh} second ({TooHigh/60:.1f} minute)"
+            TooHighText = f"Total duration for  'Too high' - {TooHigh} minute"
         else:
             TooHighText = "There is no high Duration!"
         TooHighLabel = ttk.Label(outputFrame, text=TooHighText, font= text_font, background="white", anchor='w')
         TooHighLabel.pack()
 
         if Optimal != None:
-            OptimalText = f"Total duration for  'Optimal' - {Optimal} second ({Optimal/60:.1f} minute)"
+            OptimalText = f"Total duration for  'Optimal' - {Optimal} minute)"
         else:
             OptimalText = "There is no Optimal Duration"
         OptimalLabel = ttk.Label(outputFrame, text=OptimalText, font= text_font, background="white", anchor='w')
         OptimalLabel.pack()
 
         if TooLow != None:
-            TooLowText = f"Total duration for 'Too Low' - {TooLow} second ({TooLow/60:.1f} minute)"
+            TooLowText = f"Total duration for 'Too Low' - {TooLow} minute)"
         else:
             TooLowText = "There is no low Duration!"
         TooLowLabel = ttk.Label(outputFrame, text=TooLowText, font= text_font, background="white", anchor='w')
@@ -287,23 +307,23 @@ class GraphicalWidget(ttk.Frame):
         self.BarGraph = tk.Frame(self.graph_frame, bg='white')
         self.BarGraph.grid(row=0, column=0, sticky='nsew')
         self.initializeBarGraph(self.BarGraph, self.min_critical.get(), self.max_critical.get(),  self.grid_line.get(), self.line_width.get(), self.horizontal_line.get())
-
+        
         # Create the Piechart frame
         self.PieChart.destroy()
         self.PieChart = tk.Frame(self.graph_frame, bg='white')
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
-        self.statusDataframe = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
-        self.initializePieChart(self.statusDataframe, self.PieChart)
+        self.status_df = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
+        self.initializePieChart(self.status_df, self.PieChart)
 
 
 class SummaryWidget(ttk.Frame):
-    def __init__(self, parent,user_data):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="white")
         self.pack(expand = True, fill = 'both', padx=10, pady=20)
-        self.create_table(user_data)
-    def create_table(self,user_data):
+        self.create_table()
+    def create_table(self):
         style = ttk.Style()
-        text_fonts = font.Font(family="Bookman Old Style", size=13)
+        text_fonts = font.Font(family="Bookman Old Style", size=10)
         style.configure("Treeview.Heading", font=text_fonts, rowheight=40, relief="flat")
         style.configure("Treeview", rowheight=40, borderwidth=0)
         style = ttk.Style()
@@ -323,16 +343,16 @@ class SummaryWidget(ttk.Frame):
         table.heading("#6",text="Optimal Duration(min)")
         table.heading("#7",text="Maximum Duration(min)") 
 
-        for idx, category in enumerate(user_data["summary_data"]["category"]):
+        for idx, category in enumerate(USER_DATA["summaryData"]["category"]):
             # Determine the tag for the row
             tag = 'oddrow' if idx % 2 == 0 else 'evenrow'
 
-            movement = user_data["summary_data"]["movement"][idx]
-            min_time = user_data["summary_data"]["minimum_time"][idx]
-            max_time = user_data["summary_data"]["maximum_time"][idx]
-            min_duration = user_data["summary_data"]["minimum_duration"][idx]
-            optimal_duration = user_data["summary_data"]["optimal_duration"][idx]
-            max_duration = user_data["summary_data"]["maximum_duration"][idx]
+            movement = getSummaryData("movement")[idx]
+            min_time = getSummaryData("minimum_time")[idx] 
+            max_time = getSummaryData("maximum_time")[idx] 
+            min_duration = getSummaryData("minimum_duration")[idx] 
+            optimal_duration = getSummaryData("optimal_duration")[idx] 
+            max_duration = getSummaryData("maximum_duration")[idx]
             
             table.insert("", idx, text=str(idx), values=(category, movement, min_time, max_time, min_duration, optimal_duration, max_duration),tags=(tag,))            
 

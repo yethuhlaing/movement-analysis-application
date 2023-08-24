@@ -1,9 +1,14 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
-from landing_page import LandingPage
+from landing_page.landing_page import LandingPage
 from project_creation import ProjectCreation
 from frame_to_pdf import capture_frame_page, images_to_pdf
+from database.database import create_tables
+from configparser import ConfigParser
+from data import *
+from utilities.utils import *
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -21,6 +26,15 @@ class App(tk.Tk):
         p1 = PhotoImage(file=filepath)
         self.iconphoto(False, p1)
 
+        # Database Initialization
+        config = ConfigParser()
+        config.read('config.ini')
+        db_path = config.get('Database', 'database_path')
+        create_tables(db_path)
+
+        # User Data
+        # setUserData({})
+        # setDataframe({})
         # Create instances of the LandingPage
         self.landing_page = LandingPage(self)
         self.project_creation = None
@@ -28,8 +42,6 @@ class App(tk.Tk):
 
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
-
-
     # functions to switch between frames
     def show_project_creation(self, project_name, project_creator):
         if self.project_creation:
