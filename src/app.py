@@ -3,6 +3,8 @@ from tkinter import PhotoImage, ttk, font
 from data_visualization.data_visualization import DataVisualization
 from landing_page.landing_page import LandingPage
 from project_creation import ProjectCreation
+<<<<<<<<< Temporary merge branch 1
+from database.database import create_tables
 from configparser import ConfigParser
 
 class App(tk.Tk):
@@ -38,7 +40,12 @@ class App(tk.Tk):
 
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
+<<<<<<<<< Temporary merge branch 1
+        # DataVisualization()
+=========
 
+
+>>>>>>>>> Temporary merge branch 2
     # functions to switch between frames
     def show_project_creation(self, project_name, project_creator):
         if self.project_creation:
