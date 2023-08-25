@@ -154,10 +154,12 @@ class ProjectCreation(ttk.Frame):
         #This prevents elements going on columns
         empty_label_2 = tk.Label(self,text="AAAAAAAAAAAAaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",foreground="white",background="white")
         empty_label_2.grid(row=1, column=3, sticky='nsew')
+        rightside_frame = ttk.Frame(self)
+        rightside_frame.grid(row=0,column=4,columnspan=2)
     # GENERAL FRAME
-        general_frame = ttk.LabelFrame(self, text="General", padding=(10, 10))
-        general_frame.grid(row=1, column=4, padx=20, pady=20, sticky='nswe', columnspan=2)
-        general_title = tk.Label(general_frame,text="General",font=heading_font, padx=20, justify="left", pady=20, background='white')
+        general_frame = ttk.Frame(rightside_frame, padding=(10, 10))
+        general_frame.grid(row=1, column=4, padx=0, pady=0, sticky='nswe', columnspan=2)
+        general_title = tk.Label(general_frame,text="General",font=heading_font, padx=0, justify="left", pady=0, background='white')
         general_title.grid(row=0, column=0, sticky='w')
 
         # Scenario Name
@@ -166,7 +168,7 @@ class ProjectCreation(ttk.Frame):
 
         self.scenario_name_var = tk.StringVar(value="")
         scenario_name_entry = ttk.Entry(general_frame, textvariable=self.scenario_name_var, width=20)
-        scenario_name_entry.grid(row=1, column=1, sticky='w')
+        scenario_name_entry.grid(row=1, column=1, sticky='e')
 
         # Heading "Duration" with a dropbox
         duration_label = tk.Label(general_frame, text="Duration", font=text_font, pady=5)
@@ -174,16 +176,16 @@ class ProjectCreation(ttk.Frame):
 
         self.duration_var = tk.StringVar(value="")
         duration_entry = ttk.Entry(general_frame, textvariable=self.scenario_name_var, width=20)
-        duration_entry.grid(row=2, column=1, sticky='w')
+        duration_entry.grid(row=2, column=1, sticky='e')
 
         # TIME SLIDER for starting time
         time_slider_widget = TimeSliderWidget(general_frame)
         time_slider_widget.grid(row=3, column=0, columnspan=2, pady=10, sticky='w')
 
     # GRAPH FRAME
-        graph_frame = ttk.LabelFrame(self, text="Graphical Visualization", padding=(10, 10))
-        graph_frame.grid(row=6, column=4, padx=20, pady=20, sticky='nswe', columnspan=2)
-        graph_title = tk.Label(graph_frame,text="Graphical Visualization",font=heading_font, padx=20, justify="left", pady=20, background='white')
+        graph_frame = ttk.Frame(rightside_frame, padding=(10, 10))
+        graph_frame.grid(row=6, column=4, padx=0, pady=0, sticky='nswe', columnspan=2)
+        graph_title = tk.Label(graph_frame,text="Graphical Visualization",font=heading_font, padx=0, justify="left", pady=0, background='white')
         graph_title.grid(row=0, column=0, sticky='w')
 
         # Choosing Graph type
@@ -193,12 +195,12 @@ class ProjectCreation(ttk.Frame):
         graph_options = ["Single Graph", "Double Graph"]
         self.graph_var = tk.StringVar(value=graph_options[0])
         graph_dropdown = ttk.Combobox(graph_frame, textvariable=self.graph_var, values=graph_options, state="readonly", width=20)
-        graph_dropdown.grid(row=1, column=1, sticky='w')
+        graph_dropdown.grid(row=1, column=1, sticky='e')
 
     #REFRENCE FRAME
-        refrence_frame = ttk.LabelFrame(self, padding=(20, 20))
-        refrence_frame.grid(row=9, column=4, padx=20, pady=20, rowspan=4, columnspan=2, sticky='nswe')
-        reference_title = tk.Label(refrence_frame,text="Reference Information",font=heading_font, padx=20, justify="left", pady=20, background='white')
+        refrence_frame = ttk.Frame(rightside_frame, padding=(20, 20))
+        refrence_frame.grid(row=9, column=4, padx=0, pady=0, rowspan=4, columnspan=2, sticky='nswe')
+        reference_title = tk.Label(refrence_frame,text="Reference Information",font=heading_font, padx=0, justify="left", pady=0, background='white')
         reference_title.grid(row=0, column=0, sticky='w')
 
         # Refrence name
@@ -207,19 +209,19 @@ class ProjectCreation(ttk.Frame):
 
         self.refrence_name_var = tk.StringVar(value="")
         refrence_name_entry = ttk.Entry(refrence_frame, textvariable=self.refrence_name_var, width=20)
-        refrence_name_entry.grid(row=1, column=1, sticky='w')
+        refrence_name_entry.grid(row=1, column=1, sticky='e')
 
         # File drop widget
         refrence_excel_label = ttk.Label(refrence_frame, text="Reference Excel", font=text_font)
         refrence_excel_label.grid(row=2, column=0, sticky='w')
 
         self.refrence_excel_widget = ExcelFileInputWidget(refrence_frame, time_slider_widget, "reference")
-        self.refrence_excel_widget.grid(row=2, column=1, padx=10, pady=10, sticky='w')
+        self.refrence_excel_widget.grid(row=2, column=1, padx=10, pady=10, sticky='e')
 
     # STUDENT FRAME
-        student_frame = ttk.LabelFrame(self, text="Student Information", padding=(10, 10))
-        student_frame.grid(row=13, column=4, padx=20, pady=20, sticky='nswe', columnspan=2)
-        student_title = tk.Label(student_frame,text="Student Information",font=heading_font, padx=20, justify="left", pady=20, background='white')
+        student_frame = ttk.Frame(rightside_frame, padding=(10, 10))
+        student_frame.grid(row=13, column=4, padx=0, pady=0, sticky='nswe', columnspan=2)
+        student_title = tk.Label(student_frame,text="Student Information",font=heading_font, padx=0, justify="left", pady=0, background='white')
         student_title.grid(row=0, column=0, sticky='w')
 
         # Student name
@@ -228,7 +230,7 @@ class ProjectCreation(ttk.Frame):
 
         self.student_name_var = tk.StringVar(value="")
         student_name_entry = ttk.Entry(student_frame, textvariable=self.student_name_var, width=20)
-        student_name_entry.grid(row=1, column=1, sticky='w')
+        student_name_entry.grid(row=1, column=1, sticky='e')
 
         # Student height
         height_label = tk.Label(student_frame, text="Height", font=text_font, pady=5)
@@ -236,7 +238,7 @@ class ProjectCreation(ttk.Frame):
 
         self.height_var = tk.StringVar(value="")
         height_entry = ttk.Entry(student_frame, textvariable=self.height_var, width=20)
-        height_entry.grid(row=2, column=1, sticky='w')
+        height_entry.grid(row=2, column=1, sticky='e')
 
         # Student weight
         weight_label = tk.Label(student_frame, text="Weight", font=text_font, pady=5)
@@ -244,7 +246,7 @@ class ProjectCreation(ttk.Frame):
 
         self.weight_var = tk.StringVar(value="")
         weight_entry = ttk.Entry(student_frame, textvariable=self.weight_var, width=20)
-        weight_entry.grid(row=3, column=1, sticky='w')
+        weight_entry.grid(row=3, column=1, sticky='e')
 
         # Student Excel Widget
         student_excel_label = ttk.Label(student_frame, text="Student Excel", font=text_font)
@@ -255,8 +257,8 @@ class ProjectCreation(ttk.Frame):
 
     #CREATION FRAME
         #CREATION FRAME
-        creation_frame = ttk.LabelFrame(self, padding=(20, 20))
-        creation_frame.grid(row=0, column=0, padx=20, pady=20, rowspan=4, columnspan=2, sticky='nswe')
+        creation_frame = ttk.Frame(self, padding=(20, 20))
+        creation_frame.grid(row=0, column=0, padx=0, pady=0, rowspan=4, columnspan=2, sticky='nswe')
 
         # Title
         title_font = font.Font(size=24)
@@ -266,7 +268,7 @@ class ProjectCreation(ttk.Frame):
         # CHOOSE THE CATEGORY TO EXAMINE
         # CHOOSE THE CATEGORY TO EXAMINE
         # Checkbox frame
-        checkbox_frame = ttk.LabelFrame(creation_frame, text="Choose the category to examine", padding=(10, 10))
+        checkbox_frame = ttk.Frame(creation_frame, padding=(10, 10))
         checkbox_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')
 
         # List of options with checkboxes
@@ -297,12 +299,12 @@ class ProjectCreation(ttk.Frame):
 
         # Confirm button
         confirm_button = ttk.Button(creation_frame, text="Confirm", command=self.on_confirm)
-        confirm_button.grid(row=8, column=2, columnspan=2, pady=(10, 0))
+        confirm_button.grid(row=8, column=1, columnspan=2, pady=(10, 0))
 
 
-        start_button = tk.Button(self, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
+        start_button = tk.Button(rightside_frame, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
                                  command=lambda: self.on_start_button_click())
-        start_button.grid(row=19, column=5, columnspan=2, pady=20,sticky="ne")
+        start_button.grid(row=18, column=5, columnspan=2, pady=0,sticky="ne")
     def on_confirm_columns(self, chosen_columns):
         selected_columns = []
         for selected_sheet_columns in chosen_columns.values():
