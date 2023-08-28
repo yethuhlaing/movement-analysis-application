@@ -42,7 +42,6 @@ class App(tk.Tk):
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
         # DataVisualization()
-        # DataVisualization()
     # functions to switch between frames
     def show_project_creation(self, project_name):
         if self.project_creation:
