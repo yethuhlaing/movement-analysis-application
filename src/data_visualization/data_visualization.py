@@ -121,8 +121,7 @@ class VisualizationFrame(ttk.Frame):
         self.graphCouting = 0
         for category, movementArray in self.visualizationData["categories"].items():
             for index, movement in enumerate(movementArray):
-                setLoadingContents(f"{category} ,{movement})")
-                print(category, movement, "Inserted into LoadingContents")
+                setLoadingContents(f"{category} ,{movement}")
                 GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index, self.graphCouting)
                 self.graphCouting += 1
         SummaryWidget(frame)
@@ -181,8 +180,8 @@ class GraphicalWidget(ttk.Frame):
         self.parentFrame = parentFrame
         # Set the grid weights to control the resizing behavior
         self.parentFrame.grid_rowconfigure(0, weight=1)
-        self.parentFrame.grid_columnconfigure(0, weight=60)
-        self.parentFrame.grid_columnconfigure(1, weight=40)
+        self.parentFrame.grid_columnconfigure(0, weight=3)
+        self.parentFrame.grid_columnconfigure(1, weight=1)
         
         if self.isFirstTime:
             # Creating dataframe from the file
@@ -193,16 +192,15 @@ class GraphicalWidget(ttk.Frame):
             self.status_df = calculateThreshold(self.student_df, self.movement, min_value, max_value)
 
             # Appending Dataframe into the USER_DATA
-            setReference_df(self.reference_df) 
-            setStudent_df(self.student_df) 
-            setStatus_df(self.status_df) 
+            setOneReference_df(self.reference_df) 
+            setOneStudent_df(self.student_df) 
+            setOneStatus_df(self.status_df) 
         else:
             print("Recenet HIstory")
             # Using the previous Dataframe from the USER_DATA
-            print(self.graphCouting)
-            self.reference_df = getReference_df()[0][self.graphCouting]
-            self.student_df = getStudent_df()[0][self.graphCouting]
-            self.status_df = getStatus_df()[0][self.graphCouting]
+            self.reference_df = getReference_df()[self.graphCouting]
+            self.student_df = getStudent_df()[self.graphCouting]
+            self.status_df = getStatus_df()[self.graphCouting]
             min_value = self.reference_df.min().min()
             max_value = self.reference_df.max().max()
 

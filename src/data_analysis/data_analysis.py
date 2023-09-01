@@ -13,7 +13,7 @@ def readCategory(file_path:str, category:str, movement: list, duration: int, sta
     return df.iloc[starting_rows:ending_rows]
 
 def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str, min_critical_value: float, max_critical_value: float, grid_line: bool, line_width: float , horizontal_line: bool = False):
-    fig, ax = plt.subplots(figsize= (10,4))
+    fig, ax = plt.subplots()
     for (dataframe, dataframe_name) in zip(dataframes, dataframe_names):
         ax.plot(dataframe, label= dataframe_name, linewidth=1)
     ax.set_xlabel("Frames")
@@ -28,7 +28,7 @@ def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str,
     return fig
 
 def ComparisionGraph2(dataframes: list, dataframe_names: list[str], movement: str,min_critical_value, max_critical_value,grid_line: bool, line_width: float, horizontal_line: bool = False ):    
-    fig, axes = plt.subplots(1, len(dataframes), figsize= (11,4), sharey=True)
+    fig, axes = plt.subplots(1, len(dataframes), sharey=True)
     for count, (dataframe,dataframe_names)  in enumerate(zip(dataframes,dataframe_names)):
         sns.lineplot(ax=axes[count], x= dataframe.index, y=movement, data=dataframe, linewidth=1)
         sns.set(style="whitegrid")
@@ -53,11 +53,11 @@ def pieChart(statusDataframe, title: str = ""):
     data = statusDataframe["Status"].value_counts()
     fig = plt.figure(figsize= (4,4))
     explode = (0.05)
-    for i in range(1, data.shape[0]):
-        explode += 0.05
+    # for i in range(1, data.shape[0]):
+    #     explode += 0.05
     data = statusDataframe["Status"].value_counts()
     colors = {'too high': '#ff6666', 'optimal': '#ffcc99', 'too low': '#99ff99'}
-    plt.pie(data, labels = data.index,colors=[colors[c] for c in data.index], autopct='%1.1f%%')
+    plt.pie(data, labels = data.index,colors=[colors[c] for c in data.index], autopct='%1.1f%%', startangle=90)
 
     #draw circle
     centre_circle = plt.Circle((0,0),0.70,fc='white')

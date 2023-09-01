@@ -176,6 +176,7 @@ class LandingPage(ttk.Frame):
                 student_id = self.selectedHistory[0]
                 reference_df, student_df , status_df = retrieveSelectedDataframeList(self.db_path, student_id)        
                 setReference_df(reference_df)
+                print(DATAFRAME["reference_df"])
                 setStudent_df(student_df)
                 setStatus_df(status_df)
                 self.LoadingAndExecutePage()
@@ -188,51 +189,56 @@ class LandingPage(ttk.Frame):
         self.openHistory()
 
     def show_loading_animation(self):
-        global loading_window
-        loading_window = tk.Toplevel(self.root)
-        loading_window.title("Loading...")
+
+        self.loading_window = tk.Toplevel(self.root)
+        self.loading_window.title("Loading...")
 
         # Create a Canvas widget to cover the entire window with a black overlay
-        loading_canvas = tk.Canvas(loading_window, bg="white")
-        loading_canvas.pack(fill=tk.BOTH, expand=True)
-
-        # Create a label with a loading message or an animated gif
-        loadingContents = getLoadingContents()
-        print(loadingContents)
-        for loadingContent in loadingContents:
-            loading_label = tk.Label(loading_canvas, text=loadingContent, font=("Arial", 12), fg="white")
-            loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-            time.sleep(1)
-
+        self.loading_canvas = tk.Canvas(self.loading_window, bg="white", highlightthickness=0, highlightbackground="white")
+        self.loading_canvas.pack(fill=tk.BOTH, expand=True)
         # Center the loading window on the screen
-        loading_window.update_idletasks()  # Update to get actual window size
-        screen_width = loading_window.winfo_screenwidth()
-        screen_height = loading_window.winfo_screenheight()
-        window_width = loading_window.winfo_width()
-        window_height = loading_window.winfo_height()
+        self.loading_window.update_idletasks()  # Update to get actual window size
+        screen_width = self.loading_window.winfo_screenwidth()
+        screen_height = self.loading_window.winfo_screenheight()
+        window_width = self.loading_window.winfo_width()
+        window_height = self.loading_window.winfo_height()
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
-        loading_window.geometry(f"+{x}+{y}")
+        self.loading_window.geometry(f"+{x}+{y}")
 
-        loading_window.transient(self.root)
-        loading_window.grab_set()
+        self.loading_frame = tk.Frame(self.loading_canvas, width=x, height=y, background="white")
+        self.loading_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        self.loading_label = tk.Label(self.loading_frame, text="Please wait for a while", bg="white")
+        self.loading_label.pack()
+
+
+        self.loading_canvas.update_idletasks()
+        self.loading_canvas.config(scrollregion=self.loading_canvas.bbox("all"))
+        self.loading_window.transient(self.root)
+        self.loading_window.grab_set()
    
     def simulate_page_loading(self):
         # Switch to Data Visualization Page
         self.pack_forget()
         DataVisualization()
+        # Create a label with a loading message or an animated gif
+        self.loading_label.destroy()
+        self.loading_window.title("Finished Loading!")
         loadingContents = getLoadingContents()
-        print(loadingContents)
+        for loadingContent in loadingContents:
+            loading_label = tk.Label(self.loading_frame, text=f"{loadingContent}", background="white",font=("Bookman Old Style", 8))
+            loading_label.pack(anchor=tk.CENTER, pady=3)
+            time.sleep(0.25)
         # Close the loading window when loading is done
-        self.root.after(0, self.close_loading_window)
+        self.root.after(1000, self.close_loading_window)
 
     def close_loading_window(self):
-        global loading_window
 
         # Close the loading window
-        if loading_window:
-            loading_window.destroy()
-            loading_window = None
+        if self.loading_window:
+            self.loading_window.destroy()
+            self.loading_window = None
 
     def LoadingAndExecutePage(self):
         self.show_loading_animation()

@@ -60,6 +60,7 @@ def insertHistory(database):
         student_id = selectStudentID(cursor, project, scenario, student)
         student_id = student_id[0]
         insertDataframe(cursor, student_id, reference_df_list, student_df_list, status_df_list )
+    
     conn.commit()     
     conn.close()
     return True

@@ -63,14 +63,37 @@ def getStatus_df():
     return DATAFRAME["status_df"]
 
 def setReference_df(value):
-    DATAFRAME["reference_df"].append(value) 
+    DATAFRAME["reference_df"] = value
 
 def setStudent_df(value):
-    DATAFRAME["student_df"].append(value)
+    DATAFRAME["student_df"] = value
 
 def setStatus_df(value):
-    DATAFRAME["status_df"].append(value)
+    DATAFRAME["status_df"] = value
+
+
     
+def setOneReference_df(value):
+    DATAFRAME["reference_df"].append(value) 
+
+def setOneStudent_df(value):
+    DATAFRAME["student_df"].append(value)
+
+def setOneStatus_df(value):
+    DATAFRAME["status_df"].append(value)
+
+
+
+
+def resetReference_df():
+    DATAFRAME["reference_df"] = []
+
+def resetStudent_df():
+    DATAFRAME["student_df"] = []
+
+def resetStatus_df():
+    DATAFRAME["status_df"] = []
+
 USER_DATA = { 
     "headingData" : {
         "project_name": "Running",
