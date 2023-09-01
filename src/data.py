@@ -40,7 +40,11 @@ def getSummaryData():
     return USER_DATA["summaryData"]
 
 
+def setLoadingContents(content):
+    LOADING_CONTENTS.append(content)
 
+def getLoadingContents():
+    return LOADING_CONTENTS
 
 
 def setSummaryData(category, value):
@@ -59,7 +63,7 @@ def getStatus_df():
     return DATAFRAME["status_df"]
 
 def setReference_df(value):
-    DATAFRAME["reference_df"].append(value)
+    DATAFRAME["reference_df"].append(value) 
 
 def setStudent_df(value):
     DATAFRAME["student_df"].append(value)
@@ -78,8 +82,11 @@ USER_DATA = {
         "student_name": "Meteo"
     } ,
     "visualizationData": {
-        "categories": ["Joint Angles XZY"],
-        "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ], 
+        "categories": {
+            # 'Segment Velocity': ['Pelvis x', 'Pelvis y', 'L5 y', 'L3 x', 'L3 y', 'L3 z', 'T12 x'], 
+            'Joint Angles XZY': ['L5S1 Axial Bending', 'L4L3 Lateral Bending', 'L4L3 Axial Rotation',  'L4L3 Flexion/Extension', 'L1T12 Lateral Bending', 'L1T12 Axial Rotation', 'L1T12 Flexion/Extension', 'T9T8 Lateral Bending'], 
+            'Sensor Orientation - Quat': ['Pelvis q1', 'Pelvis q3', 'L5 q0', 'L5 q1', 'L5 q2', 'L5 q3', 'L3 q0']
+        } ,         
         "scenario": "200Metres",
         "duration": 50,
         "starting_time": 20,
@@ -108,3 +115,8 @@ DATAFRAME = {
     "status_df": []
 }
 
+LOADING_CONTENTS = []
+
+# "categories": ["Joint Angles XZY"],
+# "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ],
+    

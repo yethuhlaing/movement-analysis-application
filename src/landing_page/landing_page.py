@@ -1,4 +1,6 @@
 import tkinter as tk
+import time
+import threading
 from tkinter import Canvas, ttk, font
 from PIL import Image, ImageTk
 from database.database import *
@@ -11,12 +13,13 @@ from data_visualization.data_visualization import DataVisualization
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class LandingPage(ttk.Frame):
     def __init__(self, parent):
+        self.root = parent
         #font Style
         self.button_font = font.Font(family="Bookman Old Style", size=10)
         self.text_font = font.Font(family="Bookman Old Style", size=10)
         self.heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
 
-        tk.Frame.__init__(self, parent, bg="white")
+        tk.Frame.__init__(self, self.root, bg="white")
         self.pack(expand=True, fill="both")
         
         # Database Path
@@ -175,10 +178,7 @@ class LandingPage(ttk.Frame):
                 setReference_df(reference_df)
                 setStudent_df(student_df)
                 setStatus_df(status_df)
-                
-                # Switch to Data Visualization Page
-                self.pack_forget()
-                DataVisualization()
+                self.LoadingAndExecutePage()
             else:       
                 messagebox.showerror("Error", "Please select the project before you open!")
 
@@ -186,7 +186,63 @@ class LandingPage(ttk.Frame):
         print(self.selectedHistory)
         self.on_click(event)
         self.openHistory()
-        
+
+    def show_loading_animation(self):
+        global loading_window
+        loading_window = tk.Toplevel(self.root)
+        loading_window.title("Loading...")
+
+        # Create a Canvas widget to cover the entire window with a black overlay
+        loading_canvas = tk.Canvas(loading_window, bg="white")
+        loading_canvas.pack(fill=tk.BOTH, expand=True)
+
+        # Create a label with a loading message or an animated gif
+        loadingContents = getLoadingContents()
+        print(loadingContents)
+        for loadingContent in loadingContents:
+            loading_label = tk.Label(loading_canvas, text=loadingContent, font=("Arial", 12), fg="white")
+            loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+            time.sleep(1)
+
+        # Center the loading window on the screen
+        loading_window.update_idletasks()  # Update to get actual window size
+        screen_width = loading_window.winfo_screenwidth()
+        screen_height = loading_window.winfo_screenheight()
+        window_width = loading_window.winfo_width()
+        window_height = loading_window.winfo_height()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        loading_window.geometry(f"+{x}+{y}")
+
+        loading_window.transient(self.root)
+        loading_window.grab_set()
+   
+    def simulate_page_loading(self):
+        # Switch to Data Visualization Page
+        self.pack_forget()
+        DataVisualization()
+        loadingContents = getLoadingContents()
+        print(loadingContents)
+        # Close the loading window when loading is done
+        self.root.after(0, self.close_loading_window)
+
+    def close_loading_window(self):
+        global loading_window
+
+        # Close the loading window
+        if loading_window:
+            loading_window.destroy()
+            loading_window = None
+
+    def LoadingAndExecutePage(self):
+        self.show_loading_animation()
+        # Start a new thread to execute the page loading process
+        loading_thread = threading.Thread(target=self.simulate_page_loading)
+        loading_thread.start()
+
+
+
+
 
     def start_app(self):
         project_name = self.project_name_entry.get()

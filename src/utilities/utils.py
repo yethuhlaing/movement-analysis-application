@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import json
 import pickle
+import tkinter as tk
 
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 STYLE_SHEETS = plt.style.available
@@ -32,4 +33,8 @@ def serialize(dict):
 
 def deserialize(json_str):
     return json.loads(json_str)
+
+def clear_entry_text(entry):
+    entry.delete(0, tk.END)  # Delete current text
+    entry.insert(0, "")  
 

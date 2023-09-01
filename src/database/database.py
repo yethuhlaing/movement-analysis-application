@@ -98,9 +98,16 @@ def updateStudent(cursor, project, scenario, createdDate, userData, student_id):
     return None
 
 def updateDataframe(cursor, reference_df_list, student_df_list, status_df_list, student_id):
+    cursor.execute('''
+        DELETE FROM dataframe WHERE student_id = ?
+    ''', (student_id,))
     for i in range(len(reference_df_list)):
-        cursor.execute("UPDATE dataframe SET reference_df = ?, student_df = ? , status_df = ? WHERE student_id = ?", (reference_df_list[i], student_df_list[i], status_df_list[i], student_id))
-        print("Updated Dateframe")
+        cursor.execute('''
+            INSERT INTO dataframe (student_id, reference_df, student_df, status_df)
+            VALUES (?, ?, ?, ?)
+        ''', (student_id, reference_df_list[i], student_df_list[i], status_df_list[i]))
+
+    print("Updated Dateframe")
     return None
 
 def selectAllProject(database):
@@ -147,6 +154,9 @@ def deleteHistory(database, student_id):
     cursor , conn = connectDatabase(database)
     cursor.execute('''
         DELETE FROM student WHERE student_id = ?
+    ''', (student_id,))
+    cursor.execute('''
+        DELETE FROM dataframe WHERE student_id = ?
     ''', (student_id,))
     cursor.execute("UPDATE student SET student_id = student_id - 1 WHERE student_id > ?", (student_id,))
 

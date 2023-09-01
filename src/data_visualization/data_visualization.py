@@ -118,9 +118,13 @@ class VisualizationFrame(ttk.Frame):
         canvas.create_window((0, 0), window=frame, anchor="nw")
 
         self.isFirstTime = checkFirstTime()
-        for category in self.visualizationData["categories"]:
-            for index, movement in enumerate(self.visualizationData["movements"]):
-                GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index)
+        self.graphCouting = 0
+        for category, movementArray in self.visualizationData["categories"].items():
+            for index, movement in enumerate(movementArray):
+                setLoadingContents(f"{category} ,{movement})")
+                print(category, movement, "Inserted into LoadingContents")
+                GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index, self.graphCouting)
+                self.graphCouting += 1
         SummaryWidget(frame)
         # Update the scroll region  
         frame.update_idletasks()
@@ -128,13 +132,14 @@ class VisualizationFrame(ttk.Frame):
 
 
 class GraphicalWidget(ttk.Frame):
-    def __init__(self, parent, category, movement, visualizationData, isFirstTime, index):
+    def __init__(self, parent, category, movement, visualizationData, isFirstTime, index, graphCouting):
         tk.Frame.__init__(self, parent, bg="white", pady=15)
         self.category = category
         self.movement = movement
-        _, _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
+        _, self.scenerio, self.duration, self.starting_time, self.Graph_type, self.ref_name, self.ref_file, self.student_name, self.student_file = visualizationData.values()
         self.isFirstTime = isFirstTime
         self.index = index
+        self.graphCouting = graphCouting
         # Appending Data to Summary Table
         setEachUserData("summaryData", "category", True, self.category )
         setEachUserData("summaryData", "movement", True, self.movement )
@@ -186,6 +191,7 @@ class GraphicalWidget(ttk.Frame):
             min_value = self.reference_df.min().min()
             max_value = self.reference_df.max().max() 
             self.status_df = calculateThreshold(self.student_df, self.movement, min_value, max_value)
+
             # Appending Dataframe into the USER_DATA
             setReference_df(self.reference_df) 
             setStudent_df(self.student_df) 
@@ -193,10 +199,10 @@ class GraphicalWidget(ttk.Frame):
         else:
             print("Recenet HIstory")
             # Using the previous Dataframe from the USER_DATA
-            self.reference_df = getReference_df()[0][self.index]
-            self.student_df = getStudent_df()[0][self.index]
-            self.status_df = getStatus_df()[0][self.index]
-
+            print(self.graphCouting)
+            self.reference_df = getReference_df()[0][self.graphCouting]
+            self.student_df = getStudent_df()[0][self.graphCouting]
+            self.status_df = getStatus_df()[0][self.graphCouting]
             min_value = self.reference_df.min().min()
             max_value = self.reference_df.max().max()
 
@@ -245,15 +251,17 @@ class GraphicalWidget(ttk.Frame):
         min_critical_frame.grid(row=0, column=0, padx=10, pady=10)
         min_critical_label = tk.Label(min_critical_frame, text="Minimum threshold", font=text_font, background="white")
         min_critical_label.grid(row=0, column=0, sticky='w')
-        min_critical_widget = ttk.Entry(min_critical_frame, width=20, textvariable=self.min_critical, background="white")
-        min_critical_widget.grid(row=0, column=1, sticky='w')
+        self.min_critical_widget = ttk.Entry(min_critical_frame, width=20, textvariable=self.min_critical, background="white")
+        self.min_critical_widget.grid(row=0, column=1, sticky='w')
+        clear_entry_text(self.min_critical_widget)
         
         max_critical_frame  = ttk.Frame(thresholdFrame)
         max_critical_frame.grid(row=1, column=0, padx=10, pady=10)
         max_critical_label = tk.Label(max_critical_frame, text="Maximum threshold", font=text_font, background="white")
         max_critical_label.grid(row=0, column=0, sticky='w')
-        max_critical_widget = ttk.Entry(max_critical_frame, width=20, textvariable=self.max_critical, background="white")
-        max_critical_widget.grid(row=0, column=1, sticky='w')
+        self.max_critical_widget = ttk.Entry(max_critical_frame, width=20, textvariable=self.max_critical, background="white")
+        self.max_critical_widget.grid(row=0, column=1, sticky='w')
+        clear_entry_text(self.max_critical_widget)
 
         # Create the second frame
         informationFrame2 = tk.Frame(parentFrame, background="white" )
@@ -281,21 +289,21 @@ class GraphicalWidget(ttk.Frame):
         setEachUserData("summaryData", "optimal_duration", True, Optimal)
         setEachUserData("summaryData", "maximum_duration", True, TooHigh)
         if TooHigh != None:
-            TooHighText = f"Total duration for  'Too high' - {TooHigh} minute"
+            TooHighText = f"TooHigh Total duration' - {TooHigh} minute"
         else:
             TooHighText = "There is no high Duration!"
         TooHighLabel = ttk.Label(outputFrame, text=TooHighText, font= text_font, background="white", anchor='w')
         TooHighLabel.pack()
 
         if Optimal != None:
-            OptimalText = f"Total duration for  'Optimal' - {Optimal} minute)"
+            OptimalText = f"Optimal Total duration' - {Optimal} minute"
         else:
             OptimalText = "There is no Optimal Duration"
         OptimalLabel = ttk.Label(outputFrame, text=OptimalText, font= text_font, background="white", anchor='w')
         OptimalLabel.pack()
 
         if TooLow != None:
-            TooLowText = f"Total duration for 'Too Low' - {TooLow} minute)"
+            TooLowText = f"TooLow Total duration' - {TooLow} minute"
         else:
             TooLowText = "There is no low Duration!"
         TooLowLabel = ttk.Label(outputFrame, text=TooLowText, font= text_font, background="white", anchor='w')
@@ -307,14 +315,15 @@ class GraphicalWidget(ttk.Frame):
         self.BarGraph = tk.Frame(self.graph_frame, bg='white')
         self.BarGraph.grid(row=0, column=0, sticky='nsew')
         self.initializeBarGraph(self.BarGraph, self.min_critical.get(), self.max_critical.get(),  self.grid_line.get(), self.line_width.get(), self.horizontal_line.get())
-        
+        clear_entry_text(self.max_critical_widget)
+
         # Create the Piechart frame
         self.PieChart.destroy()
         self.PieChart = tk.Frame(self.graph_frame, bg='white')
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
         self.status_df = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
         self.initializePieChart(self.status_df, self.PieChart)
-
+        clear_entry_text(self.min_critical_widget)
 
 class SummaryWidget(ttk.Frame):
     def __init__(self, parent):
@@ -329,24 +338,24 @@ class SummaryWidget(ttk.Frame):
         style = ttk.Style()
             
         # Configure the style for the TreeView
-        table = ttk.Treeview(self, columns = (1,2,3,4,5,6,7), show = 'headings')
+        table = ttk.Treeview(self, columns = (1,2,3,4,5,6,7, 8), show = 'headings')
         table.pack( fill='x')
 
         table.tag_configure('oddrow', background='white')
         table.tag_configure('evenrow', background=COLOR)
 
-        table.heading("#1",text="Category")
-        table.heading("#2",text="Movement")
-        table.heading("#3",text="Minimum Time(min)")
-        table.heading("#4",text="Maximum Time(min)")
-        table.heading("#5",text="Minimum Duration(min)")
-        table.heading("#6",text="Optimal Duration(min)")
-        table.heading("#7",text="Maximum Duration(min)") 
-
+        table.heading("#1",text="No.")
+        table.heading("#2",text="Category")
+        table.heading("#3",text="Movement")
+        table.heading("#4",text="Minimum Time(min)")
+        table.heading("#5",text="Maximum Time(min)")
+        table.heading("#6",text="Minimum Duration(min)")
+        table.heading("#7",text="Optimal Duration(min)")
+        table.heading("#8",text="Maximum Duration(min)") 
+        table.column("#1", width=50, stretch=tk.NO)   
         for idx, category in enumerate(USER_DATA["summaryData"]["category"]):
             # Determine the tag for the row
             tag = 'oddrow' if idx % 2 == 0 else 'evenrow'
-
             movement = getSummaryData("movement")[idx]
             min_time = getSummaryData("minimum_time")[idx] 
             max_time = getSummaryData("maximum_time")[idx] 
@@ -354,7 +363,7 @@ class SummaryWidget(ttk.Frame):
             optimal_duration = getSummaryData("optimal_duration")[idx] 
             max_duration = getSummaryData("maximum_duration")[idx]
             
-            table.insert("", idx, text=str(idx), values=(category, movement, min_time, max_time, min_duration, optimal_duration, max_duration),tags=(tag,))            
+            table.insert("", idx, text=str(idx), values=(idx, category, movement, min_time, max_time, min_duration, optimal_duration, max_duration),tags=(tag,))            
 
         scrollbar_table = ttk.Scrollbar(self, orient = 'vertical', command = table.yview)
         table.configure(yscrollcommand = scrollbar_table.set)

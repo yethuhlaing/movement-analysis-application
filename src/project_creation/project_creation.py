@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, font, filedialog
+from data import *
 import pandas as pd
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 
@@ -305,6 +306,7 @@ class ProjectCreation(ttk.Frame):
         start_button = tk.Button(rightside_frame, text="Analyze", bg=COLOR, bd=0, width=20, padx=20,
                                  command=lambda: self.on_start_button_click())
         start_button.grid(row=18, column=5, columnspan=2, pady=0,sticky="ne")
+        
     def on_confirm_columns(self, chosen_columns):
         selected_columns = []
         for selected_sheet_columns in chosen_columns.values():

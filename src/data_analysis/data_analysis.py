@@ -13,7 +13,7 @@ def readCategory(file_path:str, category:str, movement: list, duration: int, sta
     return df.iloc[starting_rows:ending_rows]
 
 def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str, min_critical_value: float, max_critical_value: float, grid_line: bool, line_width: float , horizontal_line: bool = False):
-    fig, ax = plt.subplots(figsize= (11,4))
+    fig, ax = plt.subplots(figsize= (10,4))
     for (dataframe, dataframe_name) in zip(dataframes, dataframe_names):
         ax.plot(dataframe, label= dataframe_name, linewidth=1)
     ax.set_xlabel("Frames")
@@ -24,6 +24,7 @@ def ComparisionGraph(dataframes: list, dataframe_names: list[str], y_label: str,
     ax.legend()
     ax.grid(grid_line)
     plt.tight_layout()
+    plt.close()
     return fig
 
 def ComparisionGraph2(dataframes: list, dataframe_names: list[str], movement: str,min_critical_value, max_critical_value,grid_line: bool, line_width: float, horizontal_line: bool = False ):    
@@ -37,6 +38,7 @@ def ComparisionGraph2(dataframes: list, dataframe_names: list[str], movement: st
         plt.axhline(y = min_critical_value, color = 'g', linestyle = '-', label = "minimum threshold")
     plt.tight_layout()
     plt.grid(grid_line)
+    plt.close()
     return fig
 
 def calculateThreshold(df, category, min_critical_value, max_critical_value):
@@ -66,6 +68,7 @@ def pieChart(statusDataframe, title: str = ""):
     plt.legend()
     plt.tight_layout()
     plt.title(title)
+    plt.close()
     return fig  
 
 def outputCriticalValues(StatusDataframe, movement):
