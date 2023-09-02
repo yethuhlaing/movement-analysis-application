@@ -14,13 +14,14 @@ COLOR = '#%02x%02x%02x' % (174, 239, 206)
 class LandingPage(ttk.Frame):
     def __init__(self, parent):
         self.root = parent
+        tk.Frame.__init__(self, self.root, bg="white")
+        self.pack(expand=True, fill="both")
+        
         #font Style
         self.button_font = font.Font(family="Bookman Old Style", size=10)
         self.text_font = font.Font(family="Bookman Old Style", size=10)
         self.heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
 
-        tk.Frame.__init__(self, self.root, bg="white")
-        self.pack(expand=True, fill="both")
         
         # Database Path
         config = ConfigParser()
@@ -176,7 +177,6 @@ class LandingPage(ttk.Frame):
                 student_id = self.selectedHistory[0]
                 reference_df, student_df , status_df = retrieveSelectedDataframeList(self.db_path, student_id)        
                 setReference_df(reference_df)
-                print(DATAFRAME["reference_df"])
                 setStudent_df(student_df)
                 setStatus_df(status_df)
                 self.LoadingAndExecutePage()
@@ -220,8 +220,9 @@ class LandingPage(ttk.Frame):
    
     def simulate_page_loading(self):
         # Switch to Data Visualization Page
+        self.master.show_visualize_data()
         self.pack_forget()
-        DataVisualization()
+
         # Create a label with a loading message or an animated gif
         self.loading_label.destroy()
         self.loading_window.title("Finished Loading!")

@@ -9,22 +9,78 @@ from data import *
 from tkinter import messagebox
 from database.database import *
 from project_creation.project_creation import ProjectCreation
+from PIL import ImageGrab,Image
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+import tempfile
+import io
+
 class DataVisualization(ttk.Frame):
-    def __init__(self):
-        tk.Frame.__init__(self, bg="white")
-        self.configure(bg="white")
+    def __init__(self, parent):
+        self.root = parent
+        tk.Frame.__init__(self, self.root, bg="white")
         self.pack(expand=True, fill="both")
-        headingData = getHeadingData()
+
         ## Heading 
+        headingData = getHeadingData()
         project_name, project_creator = headingData.values()
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
         heading.pack(anchor=tk.W)
 
-
         InformationFrame(self)
         VisualizationFrame(self)
 
+    
+    
+    def capture_and_create_pdf(self):
+        output_filename = "output.pdf"
+        image_list = []
+        # Get the dimensions of the whole window
+        window_width = self.winfo_width()
+        window_height = self.winfo_height()
+
+        # Define the height of each screenshot portion
+        screenshot_height = 800 #test value
+
+        # Access the canvas reference using winfo_children
+        canvas_widget = self.winfo_children()[2]
+
+        # Scroll and capture screenshots iteratively
+        for y in range(0, window_height, screenshot_height):
+            self.update()
+
+            # Capture screenshot of the visible portion
+            screenshot = ImageGrab.grab(bbox=(0, y, window_width, y + screenshot_height))
+            image_list.append(screenshot)
+
+            # Scroll down by the height of one screenshot
+            canvas_widget.yview_scroll(1, "units")
+
+        temp_image_paths = []
+
+        try:
+            c = canvas.Canvas(output_filename, pagesize=(window_width, window_height))
+
+            for image in image_list:
+                temp_image = Image.new("RGB", (window_width, screenshot_height))
+                temp_image.paste(image, (0, 0))
+
+                temp_image_path = tempfile.mktemp(suffix=".png")
+                temp_image.save(temp_image_path, format="PNG")
+                temp_image_paths.append(temp_image_path)
+
+                c.drawImage(temp_image_path, 0, 0, width=window_width, height=screenshot_height)
+                c.showPage()
+
+        finally:
+            c.save()
+
+            for temp_image_path in temp_image_paths:
+                os.unlink(temp_image_path)
+
+            # Scroll back to the top after capturing all screenshots
+            canvas_widget.yview_moveto(0)
 
 
 class InformationFrame(ttk.Frame):
@@ -33,7 +89,6 @@ class InformationFrame(ttk.Frame):
         config = ConfigParser()
         config.read('config.ini')
         self.db_path = config.get('Database', 'database_path')
-
         tk.Frame.__init__(self, parent, bg="white")
         
         informationData = getInformationData()
@@ -87,7 +142,7 @@ class InformationFrame(ttk.Frame):
         backButton.pack( pady=3, anchor="e", padx=60)
         saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
         saveButton.pack( pady=3, anchor="e", padx=60)
-        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,)#command=self.master.save_current_frame_as_pdf("test.pdf"))
+        savePDFButton = tk.Button(optionFrame, text ="Save as PDF",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,command=self.master.capture_and_create_pdf)
         savePDFButton.pack( pady=3, anchor="e", padx=60)
     
     def saveMessageBox(self):
@@ -105,18 +160,14 @@ class InformationFrame(ttk.Frame):
 class VisualizationFrame(ttk.Frame):
     def __init__(self, parent):
         self.visualizationData  = getVisualizationData()                
-
-        canvas = tk.Canvas(parent, bg="white", highlightthickness=0)
-        canvas.pack(side="left", fill="both", expand=True)
-
-        scrollbar = tk.Scrollbar(parent, command=canvas.yview)
+        self.canvas = tk.Canvas(parent, bg="white", highlightthickness=0)  # Store the canvas reference here
+        self.canvas.pack(side="left", fill="both", expand=True)
+        scrollbar = tk.Scrollbar(parent, command=self.canvas.yview)
         scrollbar.pack(side="right", fill="y")
-
-        canvas.configure(yscrollcommand=scrollbar.set)
-        frame = tk.Frame(canvas, background="white")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        frame = tk.Frame(self.canvas, background="white")
         frame.pack(fill="both", expand=True)
-        canvas.create_window((0, 0), window=frame, anchor="nw")
-
+        self.canvas.create_window((0, 0), window=frame, anchor="nw")
         self.isFirstTime = checkFirstTime()
         self.graphCouting = 0
         for category, movementArray in self.visualizationData["categories"].items():
@@ -125,10 +176,9 @@ class VisualizationFrame(ttk.Frame):
                 GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index, self.graphCouting)
                 self.graphCouting += 1
         SummaryWidget(frame)
-        # Update the scroll region  
-        frame.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox("all"))
 
+        frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
 class GraphicalWidget(ttk.Frame):
     def __init__(self, parent, category, movement, visualizationData, isFirstTime, index, graphCouting):

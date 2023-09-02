@@ -14,7 +14,6 @@ class App(tk.Tk):
         # configure the root window
         self.title('Movement Analysis')
 
-
         # setting tkinter window size
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
@@ -35,13 +34,14 @@ class App(tk.Tk):
         # setUserData({})
         # setDataframe({})
         # Create instances of the LandingPage
-        self.landing_page = LandingPage(self)
-        self.project_creation = None
-        self.data_visualization = None
+        # self.landing_page = LandingPage(self)
+        # self.project_creation = None
+        # self.data_visualization = None
 
         # Show the landing page initially using pack
-        self.landing_page.pack(expand=True, fill="both")
+        # self.landing_page.pack(expand=True, fill="both")
         # DataVisualization()
+        ProjectCreation(self,"adsdsaf", "sadfads")
     # functions to switch between frames
     def show_project_creation(self, project_name,project_creator):
         if self.project_creation:
@@ -50,11 +50,14 @@ class App(tk.Tk):
         self.project_creation = ProjectCreation(self, project_name=project_name,project_creator=project_creator)
         self.project_creation.pack(expand=True, fill="both")
 
-    def show_visualize_data(self, data):
+    def show_visualize_data(self):
         if self.data_visualization:
             self.data_visualization.pack_forget()
-        self.project_creation.pack_forget()
-        self.data_visualization = DataVisualization(self, self, data)
+        elif self.landing_page:
+            self.landing_page.pack_forget()
+        else:
+            self.project_creation.pack_forget()
+        self.data_visualization = DataVisualization(self)
         self.data_visualization.pack(expand=True, fill="both")
 
 
