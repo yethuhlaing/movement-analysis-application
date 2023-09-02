@@ -69,15 +69,12 @@ class ExcelFileInputWidget(tk.Label):
         return self.file_path
 
 
-class SpreadsheetPopup(tk.Toplevel):
+class SpreadsheetPopup(ttk.Frame):
     def __init__(self, parent, spreadsheet_data):
         super().__init__(parent)
         self.parent = parent
         self.spreadsheet_data = spreadsheet_data
         self.excluded_columns = {}  # Store excluded columns for each tab
-        
-        self.title("Choose columns to exclude")
-        self.geometry("400x300")
 
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
@@ -177,15 +174,18 @@ class ProjectCreation(ttk.Frame):
 
         # Create a frame for the projectInfoFrame 
         projectInfoFrame = tk.Frame(leftFrame, borderwidth=2, relief="solid")
-        projectInfoFrame.grid(row=0, column=0, padx=10, pady=10, sticky="nswe")
+        projectInfoFrame.grid(row=0, column=0, padx=10,  sticky="nswe")
 
         # Create a frame for the categoryChoosingFrame
         categoryChoosingFrame = tk.Frame(leftFrame, borderwidth=2, relief="solid")
-        categoryChoosingFrame.grid(row=1, column=0, padx=10, pady=10, sticky="nswe")
+        categoryChoosingFrame.grid(row=1, column=0, padx=10,  sticky="nswe")
 
+        SpreadsheetFrame = tk.Frame(leftFrame, borderwidth=2, relief="solid")
+        SpreadsheetFrame.grid(row=2, column=0, padx=10, sticky="nswe")
         # Configure grid weights to allow vertical expansion
         leftFrame.grid_rowconfigure(0, weight=1)
-        leftFrame.grid_rowconfigure(1, weight=2)
+        leftFrame.grid_rowconfigure(1, weight=1)
+        leftFrame.grid_rowconfigure(2, weight=1)
 
 
         # Project Information Frame
@@ -232,7 +232,6 @@ class ProjectCreation(ttk.Frame):
 
         # CategoryChoosing Frame
         
-
         checkboxFrame = ttk.Labelframe(categoryChoosingFrame,text="Choose the category to examine" )
         checkboxFrame.pack()
         # List of options with checkboxes
@@ -278,7 +277,7 @@ class ProjectCreation(ttk.Frame):
         confirm_button = ttk.Button(categoryChoosingFrame, text="Confirm", command=self.on_confirm)
         confirm_button.pack()
         
-
+        SpreadsheetPopup(SpreadsheetFrame, )
 
         categoryChoosingFrame.grid(row=1, column=0, padx=10, pady=10)
 
