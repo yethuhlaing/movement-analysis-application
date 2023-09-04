@@ -34,14 +34,14 @@ class App(tk.Tk):
         # setUserData({})
         # setDataframe({})
         # Create instances of the LandingPage
-        # self.landing_page = LandingPage(self)
-        # self.project_creation = None
-        # self.data_visualization = None
+        self.landing_page = LandingPage(self)
+        self.project_creation = None
+        self.data_visualization = None
 
         # Show the landing page initially using pack
-        # self.landing_page.pack(expand=True, fill="both")
+        self.landing_page.pack(expand=True, fill="both")
         # DataVisualization()
-        ProjectCreation(self,"adsdsaf", "sadfads")
+        # ProjectCreation(self,"adsdsaf", "sadfads")
     # functions to switch between frames
     def show_project_creation(self, project_name,project_creator):
         if self.project_creation:
@@ -53,9 +53,9 @@ class App(tk.Tk):
     def show_visualize_data(self):
         if self.data_visualization:
             self.data_visualization.pack_forget()
-        elif self.landing_page:
+        if self.landing_page:
             self.landing_page.pack_forget()
-        else:
+        if self.project_creation:
             self.project_creation.pack_forget()
         self.data_visualization = DataVisualization(self)
         self.data_visualization.pack(expand=True, fill="both")

@@ -175,3 +175,13 @@ def retrieveSelectedDataframeList(database, student_id):
     conn.commit()     
     conn.close()
     return reference_df, student_df, status_df
+
+def retrieveSelectedUserList(database, student_id):
+    cursor , conn = connectDatabase(database)
+    cursor.execute('SELECT user_data FROM student WHERE student_id = ?', (student_id,))
+    rows = cursor.fetchone()[0]
+    print(rows)
+    userData = deserialize(rows)
+    conn.commit()     
+    conn.close()
+    return userData

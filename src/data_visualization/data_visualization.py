@@ -3,6 +3,7 @@ from tkinter import PhotoImage, ttk, font
 from configparser import ConfigParser
 from utilities.utils import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 from data_analysis.data_analysis import *
 import sqlite3
 from data import *
@@ -13,7 +14,7 @@ from PIL import ImageGrab,Image
 # from reportlab.lib.pagesizes import letter
 # from reportlab.pdfgen import canvas
 import tempfile
-import io
+
 
 class DataVisualization(ttk.Frame):
     def __init__(self, parent):
@@ -23,9 +24,11 @@ class DataVisualization(ttk.Frame):
 
         ## Heading 
         headingData = getHeadingData()
+        print(headingData)
         project_name, project_creator = headingData.values()
+
         heading_font = font.Font(family="Bookman Old Style", size=20, weight="bold")
-        heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=20, background='white')
+        heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=5, background='white')
         heading.pack(anchor=tk.W)
 
         InformationFrame(self)
@@ -168,6 +171,7 @@ class VisualizationFrame(ttk.Frame):
         frame = tk.Frame(self.canvas, background="white")
         frame.pack(fill="both", expand=True)
         self.canvas.create_window((0, 0), window=frame, anchor="nw")
+
         self.isFirstTime = checkFirstTime()
         self.graphCouting = 0
         for category, movementArray in self.visualizationData["categories"].items():
@@ -175,7 +179,8 @@ class VisualizationFrame(ttk.Frame):
                 setLoadingContents(f"{category} ,{movement}")
                 GraphicalWidget(frame, category, movement, self.visualizationData, self.isFirstTime, index, self.graphCouting)
                 self.graphCouting += 1
-        SummaryWidget(frame)
+        
+        # SummaryWidget(frame)
 
         frame.update_idletasks()
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
@@ -270,17 +275,20 @@ class GraphicalWidget(ttk.Frame):
             canvas = FigureCanvasTkAgg(fig, master=parent)
             canvas_widget = canvas.get_tk_widget()
             canvas_widget.pack(fill=tk.BOTH, expand=True)
+            plt.close(fig)
         else:
             fig = ComparisionGraph2([self.reference_df, self.student_df], [self.ref_name, self.student_name], self.movement, min_value, max_value, grid_line, line_width, horizontal_line)
             canvas = FigureCanvasTkAgg(fig, master=parent)
             canvas_widget = canvas.get_tk_widget()
             canvas_widget.pack(fill=tk.BOTH, expand=True)
+            plt.close(fig)
 
     def initializePieChart(self, status_df, parent):
         fig = pieChart(status_df)
         canvas = FigureCanvasTkAgg(fig, master=parent )
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack( fill=tk.BOTH, expand=True )
+        plt.close(fig)
 
     def create_information_widget(self, parentFrame):
 

@@ -176,6 +176,8 @@ class LandingPage(ttk.Frame):
             if self.selectedHistory != None:
                 student_id = self.selectedHistory[0]
                 reference_df, student_df , status_df = retrieveSelectedDataframeList(self.db_path, student_id)        
+                userData = retrieveSelectedUserList(self.db_path, student_id)
+                setUserData(userData)
                 setReference_df(reference_df)
                 setStudent_df(student_df)
                 setStatus_df(status_df)
@@ -184,7 +186,6 @@ class LandingPage(ttk.Frame):
                 messagebox.showerror("Error", "Please select the project before you open!")
 
     def on_double_click(self, event):
-        print(self.selectedHistory)
         self.on_click(event)
         self.openHistory()
 
@@ -220,6 +221,7 @@ class LandingPage(ttk.Frame):
    
     def simulate_page_loading(self):
         # Switch to Data Visualization Page
+        time.sleep(4)
         self.master.show_visualize_data()
         self.pack_forget()
 

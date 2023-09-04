@@ -5,12 +5,15 @@ def checkFirstTime():
     return False
 
 def setUserData(userData):
+    global USER_DATA
     USER_DATA = userData
 
 def setDataframe(dataframe):
+    global DATAFRAME
     DATAFRAME = dataframe
 
 def setEachUserData(primaryType, secondaryType, isArray, value):
+    global USER_DATA
     if isArray:
         USER_DATA[primaryType][secondaryType].append(value)
     else:
@@ -41,6 +44,7 @@ def getSummaryData():
 
 
 def setLoadingContents(content):
+    global LOADING_CONTENTS
     LOADING_CONTENTS.append(content)
 
 def getLoadingContents():
@@ -48,12 +52,13 @@ def getLoadingContents():
 
 
 def setSummaryData(category, value):
+    global USER_DATA
     USER_DATA["summaryData"][category].append(value)
 
 def getSummaryData(category):
     return USER_DATA["summaryData"][category]
 
-def getReference_df():
+def getReference_df(): 
     return DATAFRAME["reference_df"]
 
 def getStudent_df():
@@ -74,7 +79,7 @@ def setStatus_df(value):
 
     
 def setOneReference_df(value):
-    DATAFRAME["reference_df"].append(value) 
+    DATAFRAME["reference_df"].append(value)  
 
 def setOneStudent_df(value):
     DATAFRAME["student_df"].append(value)
@@ -96,13 +101,13 @@ def resetStatus_df():
 
 USER_DATA = { 
     "headingData" : {
-        "project_name": "Running",
-        "project_creator": "Ye Thu"
+        # "project_name": "Running",
+        # "project_creator": "Ye Thu"
     },
     "informationData": {
-        "height": 14,
-        "weight" : 23,
-        "student_name": "Meteo"
+        # "height": 14,
+        # "weight" : 23,
+        # "student_name": "Meteo"
     } ,
     "visualizationData": {
         "categories": {
