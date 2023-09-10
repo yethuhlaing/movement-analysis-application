@@ -202,6 +202,7 @@ DATAFRAME = {
 
 LOADING_CONTENTS = []
 
-# "categories": ["Joint Angles XZY"],
-# "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ],
+SpreedsheetColumns = {
+    
+}
     
