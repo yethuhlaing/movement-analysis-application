@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, font
-from data_visualization.data_visualization import DataVisualization
-from landing_page.landing_page import LandingPage
-from project_creation.project_creation import ProjectCreation
-from database.database import create_tables
+from data_visualization import DataVisualization
+from landing_page import LandingPage
+from project_creation import ProjectCreation
+from database import create_tables
 from configparser import ConfigParser
 from data import *
-from utilities.utils import *
+from utils import *
 
 class App(tk.Tk):
     def __init__(self):
@@ -40,7 +40,7 @@ class App(tk.Tk):
 
         # Show the landing page initially using pack
         self.landing_page.pack(expand=True, fill="both")
-        # DataVisualization()
+        # DataVisualization(self)
         # ProjectCreation(self,"adsdsaf", "sadfads")
     # functions to switch between frames
     def show_project_creation(self, project_name,project_creator):
