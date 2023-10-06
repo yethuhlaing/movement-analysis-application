@@ -1,28 +1,72 @@
 # Movement analyze visualization tool for ergonomic and sport purposes
 
-# Objectives 
+## Tables of Content
+- [Description](#description)
+- [Objectives](#objectives)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [License](#license)
+- [Feedback and Support](#feedback-and-support)
+  
+
+## Description
+The AIRIDE project develops new learning methods and technologies based on riding simulators, student biosignal measurements and artificial intelligence, which can be used in training in the riding industry and in various research and educational institutions. In this project, Excel Software acts as a medium to analyze the simulation data. Due to the massive volume of the data, it is essentially time-consuming to extract and compare even the two columns of the excel file in which almost 720 columns exist. The efficient tool needs to be implemented to compare easily different simulation data in sport and work, pick up and visualize the critical key points and give fast feedback to an athlete or worker based on those threshold values. The solution to tackle this problem is to implement analysis algorithms with the scripting language – python and produce the visualization graphs via appropriate User Interface.
+  
+![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/f4aa1824-83bb-4e20-8466-00ab0ba8e581)
+
+![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/44a91cd3-ea49-454f-a8d0-bbcf0b3ba3b4)
+
+## Objectives 
 - Find out the tool to compare easily different tasks in sport and work
   - Task to task
   - Task to larger group average values
 - Pick up and visualize the critical keypoints
 - Give fast feedback to an athlete or worker based on threshold values
 
-# Initial Solution 
-- Use Excel to analyze the simulation data which takes a great deal of time
+## Prerequisites
+- Python 3.7 or higher
+- Tkinter library
   
-![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/f4aa1824-83bb-4e20-8466-00ab0ba8e581)
+## Installation
 
-# How this data is processed at the moment
+Follow these steps to install and set up the project:
 
-![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/44a91cd3-ea49-454f-a8d0-bbcf0b3ba3b4)
+1. **Clone the Repository:**
+   
+   ```bash
+   git clone https://github.com/yourusername/yourproject.git
 
-# Final Solution
+2. **Create a Virtual Environment:**
+   
+   ```bash
+   python -m venv venv
+   
+   source venv/bin/activate
+   
+3. **Install Dependencies:**
+   
+   ```bash
+   pip install -r requirements.txt
 
-![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/abd34725-cf01-41ef-9158-c041c3c98ac2)
+4. **Compile the Application:**
+   
+   ```bash
+   pyinstaller --onefile --paths=path/to/venv/Lib/site-packages app.py
 
-![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/f8e3ca36-93df-4d17-be2b-2e255263921f)
+## License
 
-![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/075d164b-2485-4572-8916-067b1b393249)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Feedback and Support
+We welcome feedback, bug reports, and feature requests. Please follow these guidelines when submitting your feedback or reporting issues:
+
+- **Bug Reports**: If you encounter a bug or unexpected behavior, please [create a new issue](https://github.com/yethuhlaing/movement-analysis-application/issues/new) on our GitHub repository. Include detailed information about the issue, steps to reproduce it, and your environment (OS, Python version, etc.).
+
+- **Feature Requests**: If you have an idea for a new feature or improvement, please [create a new issue](https://github.com/yethuhlaing/movement-analysis-application/issues/new) on our GitHub repository. Describe the feature you'd like to see and why it would be valuable.
+
+- **Feedback**: If you have general feedback or questions about the project, feel free to [contact us](mailto:yethusteve217@gmail,com) or open a discussion on our [GitHub Discussions](https://github.com/yethuhlaing/movement-analysis-application/discussions) page.
+
+Your feedback is essential to improving this project, and we appreciate your contributions!
 
 
 
