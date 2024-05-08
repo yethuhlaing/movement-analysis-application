@@ -11,7 +11,6 @@ from tkinter import messagebox
 from database import *
 from project_creation import ProjectCreation
 
-
 class DataVisualization(ttk.Frame):
     def __init__(self, parent):
         self.root = parent
@@ -27,7 +26,7 @@ class DataVisualization(ttk.Frame):
         heading = tk.Label(self,text=f"{project_name}",font=heading_font, padx=20, justify="left", pady=5, background='white')
         heading.pack(anchor=tk.CENTER)
 
-        InformationFrame(self, self.root)
+        FrameD(self, self.root)
         VisualizationFrame(self)
 
 
@@ -342,6 +341,157 @@ class GraphicalWidget(ttk.Frame):
         self.PieChart.grid(row=0, column=1, pady=10, sticky='nsew')
         self.status_df = calculateThreshold(self.student_df, self.movement, self.min_critical.get(), self.max_critical.get())
         self.initializePieChart(self.status_df, self.PieChart)
+
+class SummaryWidget(ttk.Frame):
+    def __init__(self, root):
+        popupFrame = tk.Toplevel(root)
+        popupFrame.title("Summary Table")
+
+        self.create_table(popupFrame)
+
+        
+        # Center the pop-up window on the screen
+        popupFrame.update_idletasks()  # Update the window to calculate its dimensions
+        width = popupFrame.winfo_width()
+        height = popupFrame.winfo_height()
+        x = (popupFrame.winfo_screenwidth() // 2) - (width // 2)
+        y = (popupFrame.winfo_screenheight() // 2) - (height // 2)
+        popupFrame.geometry(f"{width}x{height}+{x}+{y}")
+        
+        popupFrame.transient(root)  # Set the pop-up as a transient window (closes when the main window is closed)
+        popupFrame.grab_set()       # Grab focus to the pop-up window
+        root.wait_window(popupFrame) 
+
+    def create_table(self, parent):
+        style = ttk.Style()
+        text_fonts = font.Font(family="Bookman Old Style", size=10)
+        style.configure("Treeview.Heading", font=text_fonts, rowheight=40, relief="flat")
+        style.configure("Treeview", rowheight=40, borderwidth=0)
+        style = ttk.Style()
+            
+        # Configure the style for the TreeView
+        table = ttk.Treeview(parent, columns = (1,2,3,4,5,6,7, 8), show = 'headings')
+        table.pack( fill='x')
+
+        table.tag_configure('oddrow', background='white')
+        table.tag_configure('evenrow', background=COLOR)
+
+        table.heading("#1",text="No.")
+        table.heading("#2",text="Category")
+        table.heading("#3",text="Movement")
+        table.heading("#4",text="Minimum Time(min)")
+        table.heading("#5",text="Maximum Time(min)")
+        table.heading("#6",text="Minimum Duration(min)")
+        table.heading("#7",text="Optimal Duration(min)")
+        table.heading("#8",text="Maximum Duration(min)") 
+        table.column("#1", width=50, stretch=tk.NO)  
+        
+        categories = getSummaryData("category")      
+        print("Desired", categories)
+        for idx, category in enumerate(categories):
+            # Determine the tag for the row
+            tag = 'oddrow' if idx % 2 == 0 else 'evenrow'
+            
+            movement = getSummaryData("movement")[idx]
+            min_time = getSummaryData("minimum_time")[idx] 
+            max_time = getSummaryData("maximum_time")[idx] 
+            min_duration = getSummaryData("minimum_duration")[idx] 
+            optimal_duration = getSummaryData("optimal_duration")[idx] 
+            max_duration = getSummaryData("maximum_duration")[idx]
+            
+            table.insert("", idx, text=str(idx), values=(idx, category, movement, min_time, max_time, min_duration, optimal_duration, max_duration),tags=(tag,))            
+
+        scrollbar_table = ttk.Scrollbar(parent, orient = 'vertical', command = table.yview)
+        table.configure(yscrollcommand = scrollbar_table.set)
+        scrollbar_table.place(relx = 1, rely = 0, relheight = 1, anchor = 'ne')
+
+
+class InformationFrame(ttk.Frame):
+    def __init__(self, parent, root):
+        # Database Path
+        self.root = root
+        
+        config = ConfigParser()
+        config.read('config.ini')
+        self.db_path = config.get('Database', 'database_path')
+        tk.Frame.__init__(self, parent, bg="white")
+        
+        informationData = getInformationData()
+        self.height, self.weight, self.student_name = informationData.values()
+        self.bmi = round(self.weight / ((self.height/100) ** 2), 2)
+        self.create_widgets()
+        self.pack(expand = False, fill = 'both', pady = 20)
+
+    def create_widgets(self):
+
+        text_font = font.Font(family="Bookman Old Style", size=10)
+        # Create the first frame
+        infoFrame = tk.Frame(self, bg='red')
+        infoFrame.grid(row=0, column=0, pady=0, sticky='nsew')
+        # Set the grid weights to control the resizing behavior
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=6)
+        self.grid_columnconfigure(1, weight=4)
+
+        # Create the first sub-frame
+        sub_frame1 = tk.Frame(infoFrame, background="white")
+        sub_frame1.grid(row=0, column=0, sticky='nsew')
+
+        # Create the second sub-frame
+        sub_frame2 = tk.Frame(infoFrame, background="white")
+        sub_frame2.grid(row=0, column=1, sticky='nsew')
+
+        infoFrame.grid_rowconfigure(0, weight=1)
+        infoFrame.grid_columnconfigure(0, weight=5)
+        infoFrame.grid_columnconfigure(1, weight=5)
+        # Add widgets to the frames
+        height = tk.Label(sub_frame1, text=f"Height - {self.height} cm", justify='left', background="white" , font=text_font)
+        height.pack()
+        weight = tk.Label(sub_frame1, text=f"Weight - {self.weight} kg", justify='left', background="white", font=text_font)
+        weight.pack()
+        bmi = tk.Label(sub_frame1, text=f"BMI - {self.bmi}", justify='left', background="white", font=text_font)
+        bmi.pack()
+        date = tk.Label(sub_frame2, text=f"Date - {current_date()}", justify='right' , font=text_font, background="white" )
+        date.pack()
+        time = tk.Label(sub_frame2, text=f"Time - {current_time()}", justify='right', font=text_font, background="white" )
+        time.pack()
+        creater = tk.Label(sub_frame2, text=f"Student - {self.student_name}", justify='right', font=text_font, background="white" )
+        creater.pack()
+
+        # Create the second frame
+
+        optionFrame = tk.Frame(self, background="white" )
+        optionFrame.grid(row=0, column=1, sticky='nsew')
+        button_font = font.Font(family="Bookman Old Style", size=10)
+        # backButton = tk.Button(optionFrame, text ="Back", bg= COLOR, bd=0, width=20, padx=30, font=button_font , command=lambda: self.previousPage())
+        # backButton.pack( pady=3, anchor="e", padx=60)
+        saveButton = tk.Button(optionFrame, text ="Save Data",bg= COLOR, bd=0,width=20,padx=30 , font=button_font, command=lambda: self.saveMessageBox())
+        saveButton.pack( pady=3, anchor="e", padx=60)
+        summarizeButton = tk.Button(optionFrame, text ="Summarize",bg= COLOR, bd=0,width=20,padx=30 , font=button_font,command=self.showSummary)
+        summarizeButton.pack( pady=3, anchor="e", padx=60)
+    
+    def saveMessageBox(self):
+        print("Desried", USER_DATA)
+        # project = USER_DATA["headingData"]["project_name"]
+        # scenario = USER_DATA["visualizationData"]["scenario"]
+        # student = USER_DATA["informationData"]["student_name"]
+        # reference_df_list = serializeDataframeList(DATAFRAME["reference_df"])
+        # student_df_list = serializeDataframeList(DATAFRAME["student_df"])
+        # status_df_list = serializeDataframeList(DATAFRAME["status_df"])
+        # userData = serialize(USER_DATA)
+        # createdDate = current_date()
+        if insertHistory(self.db_path):
+            messagebox.showinfo("Success", "The user data is saved successfully!")
+        else:
+            messagebox.showerror("Error", "There is some error in saving your data!")
+
+    def previousPage(self):
+        # ProjectCreation()
+        pass
+
+    def showSummary(self):
+        SummaryWidget(self.root)
+
 
 class SummaryWidget(ttk.Frame):
     def __init__(self, root):
