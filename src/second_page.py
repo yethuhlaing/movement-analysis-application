@@ -2,9 +2,8 @@ import tkinter as tk
 from tkinter import ttk, font, filedialog
 from data import *
 import pandas as pd
-from data import *
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
-
+from data_visualization import analyze
 class TimeSliderWidget():
     def __init__(self, parent):
         self.button_font = font.Font(family="Bookman Old Style", size=11)
@@ -128,8 +127,6 @@ class ProjectCreation(ttk.Frame):
 
         self.tab_data[selected_tab] = selected_data
 
-
-
     def on_tab_change(self, event):
         self.selectedListbox.delete(0, tk.END)
         for tab_name, data in self.tab_data.items():
@@ -241,59 +238,6 @@ class ProjectCreation(ttk.Frame):
         self.student_excel_widget = ExcelFileInputWidget(studentExcelFrame, self.time_slider_widget, "student")
         self.student_excel_widget.pack(side="left")
 
-
-
-
-
-        # CategoryChoosing Frame
-        
-        # checkboxFrame = ttk.Labelframe(categoryChoosingFrame,text="Choose the category to examine" )
-        # checkboxFrame.pack()
-        # # List of options with checkboxes
-        # options = [
-        #     "Segment Angular Velocity",
-        #     "Segment Orientation - Quat",
-        #     "Segment Orientation - Euler",
-        #     "Segment Position",
-        #     "Ergonomic Joint Angles ZXY",
-        #     "Center of Mass",
-        #     "Sensor Free Acceleration",
-        #     "Segment Velocity",
-        #     "Segment Acceleration",
-        #     "Joint Angles XZY",
-        #     "Joint Angles ZXY",
-        #     "Sensor Orientation - Quat",
-        #     "Sensor Orientation - Euler",
-        #     "Sensor Magnetic Field"
-        # ]
-        # # Create a dictionary to store the BooleanVar instances for each category
-        # self.check_var_dict = {}
-        
-        # # Create and place checkboxes in two columns
-        # for i, option in enumerate(options):
-        #     var = tk.BooleanVar()
-        #     self.check_var_dict[option] = var
-        #     checkbox = ttk.Checkbutton(checkboxFrame, text=option, variable=var)
-        #     if i < len(options) // 2:
-        #         # Place in the left column
-        #         checkbox.grid(row=i, column=0, sticky="w", padx=10, pady=5)
-        #     else:
-        #         # Place in the right column
-        #         checkbox.grid(row=i - len(options) // 2, column=1, sticky="w", padx=10, pady=5)
-
-        # # # Create the checkboxes
-        # # for idx, option in enumerate(options):
-        # #     var = tk.BooleanVar(value=True)  # Default checkboxes to active
-        # #     self.check_var_dict[option] = var
-        # #     checkbox = tk.Checkbutton(checkboxFrame, text=option, variable=var, bg="white", anchor='w')
-        # #     checkbox.pack()
-
-        # # Confirm button
-        # confirm_button = ttk.Button(categoryChoosingFrame, text="Confirm", command=self.on_confirm)
-        # confirm_button.pack()
-
-        # categoryChoosingFrame.grid(row=1, column=0, padx=10, pady=10)
-
     def create_right_frame(self, rightFrame):
         self.selectedListbox = tk.Listbox(rightFrame, selectmode=tk.MULTIPLE, relief="solid", borderwidth=1, background="white")
         self.selectedListbox.pack(fill="both", expand=True, padx=10)
@@ -302,10 +246,6 @@ class ProjectCreation(ttk.Frame):
         start_button = tk.Button(rightFrame, text="Analyze", bg=COLOR, bd=0, 
                                  command=lambda: self.on_start_button_click(), height=2)
         start_button.pack(padx=10,  fill="x", expand=True)
-
-
-
-
 
     def create_middle_frame(self, middleFrame):
     # GENERAL FRAME
@@ -360,14 +300,52 @@ class ProjectCreation(ttk.Frame):
     def on_start_button_click(self):
         # Gets selected checkboxes for sheet names
         self.chosen_columns = self.tab_data
-        user_data = { 
+        testing_user_data = {
+            "headingData": {
+                "project_name": "adsdsaf",
+                "project_creator": "sadfads"
+            },
+            "informationData": {
+                "height": "12",
+                "weight": "12",
+                "student_name": "asa"
+            },
+            "visualizationData": {
+                "categories": {
+                    "Segment Orientation - Quat": ["Pelvis q1", "L5 q3", "T12 q0"],
+                    "Segment Orientation - Euler": ["L5 x", "L3 z", "T12 z"],
+                    "Segment Position": ["L5 x", "L5 z", "L3 z", "T8 x"],
+                    "Segment Velocity": ["L5 y", "T12 y", "T8 z"]
+                },
+                "scenario": "Demo",
+                "duration": "100",
+                "starting_time": 108,
+                "Graph_type": "Single Graph",
+                "ref_name": "HI",
+                "ref_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/REference 240Hz data/Real horse riding/Reference Realhorse1-007 ext trot 1_frames_1138-2337.xlsx",
+                "student_name": "asa",
+                "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student 240Hzdata/Sudent1 horse1-008 ext trot 1_frames_552-1904.xlsx"
+            },
+            "summaryData": {
+                "category": [],
+                "movement": [],
+                "minimum_time": [],
+                "maximum_time": [],
+                "minimum_duration": [],
+                "optimal_duration": [],
+                "maximum_duration": []
+            }
+            }
+
+        
+        user_data = {
             "headingData" : {
                 "project_name": self.project_name,
                 "project_creator": self.project_creator
             },
             "informationData": {
-                "height": int(self.height_var.get()),
-                "weight" : int(self.weight_var.get()),
+                "height": self.height_var.get(),
+                "weight" : self.weight_var.get(),
                 "student_name": self.student_name_var.get()
             } ,
             "visualizationData": {
@@ -391,8 +369,9 @@ class ProjectCreation(ttk.Frame):
                 "maximum_duration":[],
             }
         }
-        setUserData(user_data)
-        x = getInformationData()
-        print("see" , x)
+
+        
+        analyze("frame", testing_user_data["visualizationData"])
+
         # Switch to the DataVisualization page and pass the data array
-        self.master.show_visualize_data()
+        # self.master.show_visualize_data()

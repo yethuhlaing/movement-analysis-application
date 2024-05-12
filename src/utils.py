@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import json
 import pickle
 import tkinter as tk
-
+import os
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 STYLE_SHEETS = plt.style.available
 
@@ -38,3 +38,29 @@ def deserialize(json_str):
 #     entry.delete(0, tk.END)  # Delete current text
 #     entry.insert(0, "")  
 
+def makeFilePath(filename):
+    current_dir = os.path.abspath(__file__)
+    parent_dir = os.path.dirname(current_dir)
+    temp_dir = os.path.join(os.path.dirname(parent_dir), "temp")
+    # Ensure that the temporary folder exists, if not, create it
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+
+    filepath = os.path.join(temp_dir, filename)
+    return filepath
+
+def DeleteTempFiles():
+
+    current_dir = os.path.abspath(__file__)
+    parent_dir = os.path.dirname(current_dir)
+    temp_dir = os.path.join(os.path.dirname(parent_dir), "temp")
+    # List all files in the directory
+    files = os.listdir(temp_dir)
+    # Iterate over each file and delete it
+    for file in files:
+        file_path = os.path.join(temp_dir, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            print(f"Deleted file: {file_path}")
+        else:
+            print(f"Skipping non-file: {file_path}")

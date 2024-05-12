@@ -33,7 +33,7 @@ class LandingPage(ttk.Frame):
         # Background image
         # Using the configure even image is resized to the window size
         # Implementing a delay in the resizing possibly makes it smoother
-        bg_image = Image.open("../assets/landing_page_bg.png")
+        bg_image = Image.open("../assets/first_page_bg.png")
         bg_image = bg_image.resize((self.winfo_screenwidth(), self.winfo_screenheight()))
         bg_photo = ImageTk.PhotoImage(bg_image)
         canvas = Canvas(self, width=self.winfo_screenwidth(), height=self.winfo_screenheight())
@@ -41,7 +41,7 @@ class LandingPage(ttk.Frame):
         canvas.create_image(0, 0, image=bg_photo, anchor="nw")
         def resizer(event):
             global bg1, resized_bg, new_bg # Needed for garbage collector
-            bg1 = Image.open("../assets/landing_page_bg.png")
+            bg1 = Image.open("../assets/first_page_bg.png")
             resized_bg = bg1.resize((event.width, event.height),Image.Resampling.LANCZOS)
             new_bg = ImageTk.PhotoImage(resized_bg)
             canvas.create_image(0, 0, image=new_bg, anchor="nw")
@@ -257,6 +257,6 @@ class LandingPage(ttk.Frame):
         project_name = self.project_name_entry.get()
         project_creator = self.project_creator_entry.get()
         # Switch to the project creation page and pass the project name
-        self.master.show_project_creation(project_name,project_creator)
+        self.master.show_second_page(project_name,project_creator)
 
   

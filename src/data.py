@@ -10,12 +10,6 @@ def checkFirstTimeHD():
         return True
     return False
 
-def checkFirstTimeID():
-    if USER_DATA["headingData"]["project_name"] == "" :
-        print("HeadingData", True)
-        return True
-    return False
-
 def setHeadingData(project_name, project_creator,):
     global USER_DATA
     USER_DATA["headingData"]["project_name"] = project_name
@@ -204,7 +198,7 @@ LOADING_CONTENTS = []
 
 # "categories": ["Joint Angles XZY"],
 # "movements": ["L5S1 Lateral Bending", "L5S1 Axial Bending" ],
-    
+ 
 SpreadsheetData = {
     "Segment Orientation - Quat": [
         "Pelvis q0", "Pelvis q1", "Pelvis q2", "Pelvis q3", "L5 q0", "L5 q1", "L5 q2", "L5 q3", "L3 q0", "L3 q1",
