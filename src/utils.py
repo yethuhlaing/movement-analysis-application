@@ -18,36 +18,20 @@ def current_date():
 def current_time():
     return datetime.datetime.now().time().strftime("%H:%M:%S")
 
-def serializeDataframeList(dataframe_list):
-    serializedDataframeList = []
-    for dataframe in dataframe_list:
-        dataframe_bytes = pickle.dumps(dataframe)
-        serializedDataframeList.append(dataframe_bytes)
-    return serializedDataframeList
-
-def deserializeDataframe(df_bytes):
-    return pickle.loads(df_bytes)
-
-def serialize(dict):
-    return json.dumps(dict)
-
-def deserialize(json_str):
-    return json.loads(json_str)
-
-# def clear_entry_text(entry):
-#     entry.delete(0, tk.END)  # Delete current text
-#     entry.insert(0, "")  
-
 def makeFilePath(filename):
-    current_dir = os.path.abspath(__file__)
-    parent_dir = os.path.dirname(current_dir)
-    temp_dir = os.path.join(os.path.dirname(parent_dir), "temp")
+    temp_dir = FindTempFolder()
     # Ensure that the temporary folder exists, if not, create it
     if not os.path.exists(temp_dir):
         os.makedirs(temp_dir)
 
     filepath = os.path.join(temp_dir, filename)
     return filepath
+
+def FindTempFolder():
+    current_dir = os.path.abspath(__file__)
+    parent_dir = os.path.dirname(current_dir)
+    temp_dir = os.path.join(os.path.dirname(parent_dir), "temp")
+    return temp_dir
 
 def DeleteTempFiles():
 
