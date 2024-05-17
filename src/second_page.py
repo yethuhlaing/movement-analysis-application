@@ -1,8 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, font, filedialog
 import pandas as pd
+import subprocess
+import os
+import platform
+import threading
+from generate_pdf import *
+from utils import show_error_message
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
-from generate_pdf import analyze
 class TimeSliderWidget():
     def __init__(self, parent):
         self.button_font = font.Font(family="Bookman Old Style", size=11)
@@ -57,7 +62,6 @@ class ExcelFileInputWidget(tk.Button):
     def get_file_path(self):
         return self.file_path
 
-
 def process_excel(file_path):
     try:
         # Read data from different sheets
@@ -74,15 +78,20 @@ def process_excel(file_path):
         print("Seconds", frames_in_seconds)
         return total_frame, frame_rate, frames_in_seconds 
     except Exception as e:
-        print(f"Error loading Excel file: {e}")
+        show_error_message(e)
         
 
 
 class ProjectCreation(ttk.Frame):
-    def __init__(self, parent, project_name,project_creator):
+    def __init__(self, parent, project_name, project_creator, scenario, reference, student):
         tk.Frame.__init__(self, parent, bg="white")
+        self.parent = parent
         self.project_name = project_name
         self.project_creator = project_creator
+        self.scenario = scenario
+        self.reference = reference
+        self.student = student
+
         self.data = []
         self.spreadsheet_tabs = {}
         self.create_widgets()
@@ -171,11 +180,8 @@ class ProjectCreation(ttk.Frame):
 
         # Create a frame for the projectInfoFrame 
         projectInfoFrame = tk.Frame(leftFrame, bg="white")
-        projectInfoFrame.grid(row=0, column=0, padx=10,  sticky="nswe")
+        projectInfoFrame.grid(row=0, column=0, padx=10, sticky="nswe")
 
-        # Create a frame for the categoryChoosingFrame
-        categoryChoosingFrame = tk.Frame(leftFrame, borderwidth=2, relief="solid")
-        categoryChoosingFrame.grid(row=1, column=0, padx=10,  sticky="nswe")
 
         # Configure grid weights to allow vertical expansion
         leftFrame.grid_rowconfigure(0, weight=1)
@@ -183,7 +189,6 @@ class ProjectCreation(ttk.Frame):
 
 
         # Project Information Frame
-
         projectNameFrame = tk.Frame(projectInfoFrame, bg="white")
         projectNameFrame.pack(anchor="w")
         projectNameLabel = tk.Label(projectNameFrame, text="Project Name - ", font=self.heading_font, pady=5, padx= 10, bg="white")
@@ -198,29 +203,21 @@ class ProjectCreation(ttk.Frame):
         projectCreator = tk.Label(projectCreatorFrame, text=self.project_creator, font=self.heading_font, pady=5, bg="white")
         projectCreator.pack(side="left")
 
-        scenarioFrame = tk.Frame(projectInfoFrame, bg="white")
-        scenarioFrame.pack(anchor="e")
-        scenario_name_label = tk.Label(scenarioFrame, text="Scenario Name", font=self.text_font, pady=5, padx=10, bg="white")
-        scenario_name_label.pack(side="left")
-        self.scenario_name_var = tk.StringVar(value="")
-        scenario_name_entry = ttk.Entry(scenarioFrame, textvariable=self.scenario_name_var, width=30)
-        scenario_name_entry.pack(side="left")
+        heightFrame = tk.Frame(projectInfoFrame, bg="white")
+        heightFrame.pack(anchor="e")
+        height_label = tk.Label(heightFrame, text="Height(cm)", font=self.text_font, pady=5, padx=10, background="white")
+        height_label.pack(side="left")
+        self.height_var = tk.StringVar(value="")
+        height_entry = ttk.Entry(heightFrame, textvariable=self.height_var, width=30)
+        height_entry.pack(side="left")
 
-        referenceFrame = tk.Frame(projectInfoFrame, bg="white")
-        referenceFrame.pack(anchor="e")
-        refrence_name_label = tk.Label(referenceFrame, text="Refrence name", font=self.text_font, pady=5, padx=10, bg="white")
-        refrence_name_label.pack(side="left")
-        self.refrence_name_var = tk.StringVar(value="")
-        refrence_name_entry = ttk.Entry(referenceFrame, textvariable=self.refrence_name_var, width=30)
-        refrence_name_entry.pack(side="left")
-
-        studentFrame = tk.Frame(projectInfoFrame, bg="white")
-        studentFrame.pack(anchor="e")
-        student_name_label = tk.Label(studentFrame, text="Student name", font=self.text_font, pady=5, padx=10, bg="white")
-        student_name_label.pack(side="left")
-        self.student_name_var = tk.StringVar(value="")
-        student_name_entry = ttk.Entry(studentFrame, textvariable=self.student_name_var, width=30)
-        student_name_entry.pack(side="left")
+        weightFrame = tk.Frame(projectInfoFrame, bg="white")
+        weightFrame.pack(anchor="e")
+        weight_label = tk.Label(weightFrame, text="Weight(kg)", font=self.text_font, pady=5, padx=10, bg="white")
+        weight_label.pack(side="left")
+        self.weight_var = tk.StringVar(value="")
+        weight_entry = ttk.Entry(weightFrame, textvariable=self.weight_var, width=30)
+        weight_entry.pack(side="left")
 
         refrenceExcelFrame = tk.Frame(projectInfoFrame, bg="white")
         refrenceExcelFrame.pack(anchor="e")
@@ -241,9 +238,9 @@ class ProjectCreation(ttk.Frame):
         self.selectedListbox.pack(fill="both", expand=True, padx=10)
 
         
-        start_button = tk.Button(rightFrame, text="Analyze", bg=COLOR, bd=0, 
+        self.start_button = tk.Button(rightFrame, text="Analyze", bg=COLOR, bd=0, 
                                  command=lambda: self.on_start_button_click(), height=2)
-        start_button.pack(padx=10,  fill="x", expand=True)
+        self.start_button.pack(padx=10,  fill="x", expand=True)
 
     def create_middle_frame(self, middleFrame):
     # GENERAL FRAME
@@ -268,23 +265,33 @@ class ProjectCreation(ttk.Frame):
         graph_dropdown.pack(side="left")
         graphFrame.pack(anchor="w")
 
-        # self.popupFrame = tk.Frame(middleFrame, bg="white")
-        # self.popupFrame.pack(fill="both", expand=True)
-        heightFrame = tk.Frame(middleFrame, bg="white")
-        heightFrame.pack(anchor="w")
-        height_label = tk.Label(heightFrame, text="Height(cm)", font=self.text_font, pady=5, padx=10, background="white")
-        height_label.pack(side="left")
-        self.height_var = tk.StringVar(value="")
-        height_entry = ttk.Entry(heightFrame, textvariable=self.height_var, width=30)
-        height_entry.pack(side="left")
+        lineWidthFrame = tk.Frame(middleFrame, bg="white")
+        lineWidthFrame.pack(anchor="w")
+        lineWidth_label = tk.Label(lineWidthFrame, text="Line Width", font=self.text_font, pady=5, padx=10, background="white")
+        lineWidth_label.pack(side="left")
+        self.lineWidth_var = tk.DoubleVar(value=1.2)
+        lineWidth_entry = ttk.Entry(lineWidthFrame, textvariable=self.lineWidth_var, width=30)
+        lineWidth_entry.pack(side="left")
 
-        weightFrame = tk.Frame(middleFrame, bg="white")
-        weightFrame.pack(anchor="w")
-        weight_label = tk.Label(weightFrame, text="Weight(kg)", font=self.text_font, pady=5, padx=10, background="white")
-        weight_label.pack(side="left")
-        self.weight_var = tk.StringVar(value="")
-        weight_entry = ttk.Entry(weightFrame, textvariable=self.weight_var, width=30)
-        weight_entry.pack(side="left")
+        horizontalLineFrame = tk.Frame(middleFrame, bg="white")
+        horizontalLineFrame.pack(anchor="w")    
+        horizontalLine_label = tk.Label(horizontalLineFrame, text="Horizontal Line", font=self.text_font, pady=5, padx=10, background="white")
+        horizontalLine_label.pack(side="left")
+        self.horizontalLine_var = tk.BooleanVar()
+        true_radio = tk.Radiobutton(horizontalLineFrame, text="True", variable=self.horizontalLine_var, value=True, background="white")
+        false_radio = tk.Radiobutton(horizontalLineFrame, text="False", variable=self.horizontalLine_var, value=False, background="white")        
+        true_radio.pack(side="left")
+        false_radio.pack(side="left")
+
+        gridFrame = tk.Frame(middleFrame, bg="white")
+        gridFrame.pack(anchor="w")
+        grid_label = tk.Label(gridFrame, text="Grid", font=self.text_font, pady=5, padx=10, background="white")
+        grid_label.pack(side="left")
+        self.grid_var = tk.BooleanVar()
+        true_radio = tk.Radiobutton(gridFrame, text="True", variable=self.grid_var, value=True, background="white")
+        false_radio = tk.Radiobutton(gridFrame, text="False", variable=self.grid_var, value=False, background="white")        
+        true_radio.pack(side="left")
+        false_radio.pack(side="left")
 
     def create_bottom_frame(self, bottomFrame):
         spreadsheet_data = SpreadsheetData
@@ -297,67 +304,101 @@ class ProjectCreation(ttk.Frame):
     def on_start_button_click(self):
         # Gets selected checkboxes for sheet names
         self.chosen_columns = self.tab_data
-        testing_user_data = {
-            "headingData": {
-                "project_name": "Demo Movement",
-                "project_creator": "Ye Thu Hlaing"
-            },
-            "informationData": {
-                "height": "12",
-                "weight": "12",
-                "student_name": "Johnson"
-            },
-            "visualizationData": {
-                "categories": {
-                    "Segment Orientation - Quat": ["Pelvis q1", "L5 q3", "T12 q0"],
-                    "Segment Orientation - Euler": ["L5 x", "L3 z", "T12 z"],
-                    "Segment Position": ["L5 x", "L5 z", "L3 z", "T8 x"],
-                    "Segment Velocity": ["L5 y", "T12 y", "T8 z"]
+        # testing_user_data = {
+        #     "headingData": {
+        #         "project_name": "Demo Movement",
+        #         "project_creator": "Ye Thu Hlaing"
+        #     },
+        #     "informationData": {
+        #         "height": "12",
+        #         "weight": "12",
+        #         "student_name": "Johnson"
+        #     },
+        #     "visualizationData": {
+        #         "categories": {
+        #             "Segment Orientation - Quat": ["Pelvis q1", "L5 q3", "T12 q0"],
+        #             "Segment Orientation - Euler": ["L5 x", "L3 z", "T12 z"],
+        #             "Segment Position": ["L5 x", "L5 z", "L3 z", "T8 x"],
+        #             "Segment Velocity": ["L5 y", "T12 y", "T8 z"]
+        #         },
+        #         "scenario": "Sprint Running",
+        #         "duration": "100000000",
+        #         "total_frames": 100,
+        #         "starting_time": 1,
+        #         "frame_rate": 240,
+        #         "Graph_type": "Single Graph",
+        #         "ref_name": "HI",
+        #         "ref_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/REference 240Hz data/Real horse riding/Reference Realhorse1-007 ext trot 1_frames_1138-2337.xlsx",
+        #         "student_name": "Johnson",
+        #         "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student 240Hzdata/Sudent1 horse1-008 ext trot 1_frames_552-1904.xlsx"
+        #         "horizontal_line": true,
+        #         "line_width": 1
+        #     },
+        # }
+
+        self.duration = self.duration_var.get()
+        self.total_frame = self.refrence_excel_widget.total_frame
+        self.frame_rate = self.refrence_excel_widget.getFrameRate()
+        self.graph = self.graph_var.get()
+        self.starting_time = self.refrence_excel_widget.time_slider_widget.slider.get()
+        self.ref_file = self.refrence_excel_widget.file_path
+        self.student_file = self.student_excel_widget.get_file_path()
+        self.height = self.height_var.get()
+        self.weight = self.weight_var.get()
+        self.horizontalLine: bool = self.horizontalLine_var.get()
+        self.lineWidth: float = self.lineWidth_var.get()
+        self.grid: bool= self.grid_var.get()
+
+        if not self.student_file and not self.duration and not self.ref_file:
+            show_error_message("Please fill the information completely!")
+        else:
+            user_data = {
+                "headingData" : {
+                    "project_name": self.project_name,
+                    "project_creator": self.project_creator
                 },
-                "scenario": "Sprint Running",
-                "duration": "100000000",
-                "total_frames": 100,
-                "starting_time": 1,
-                "frame_rate": 240,
-                "Graph_type": "Single Graph",
-                "ref_name": "HI",
-                "ref_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/REference 240Hz data/Real horse riding/Reference Realhorse1-007 ext trot 1_frames_1138-2337.xlsx",
-                "student_name": "Johnson",
-                "student_file": "C:/Users/yethu/Desktop/Movement Analysis Project/data/Student 240Hzdata/Sudent1 horse1-008 ext trot 1_frames_552-1904.xlsx"
-            },
-        }
+                "informationData": {
+                    "height": self.height,
+                    "weight" : self.weight, 
+                } ,
+                "visualizationData": {
+                    "categories": self.chosen_columns,
+                    "scenario": self.scenario,
+                    "duration": self.duration,
+                    "total_frames": self.total_frame,
+                    "starting_time": self.starting_time,
+                    "frame_rate": self.frame_rate,
+                    "Graph_type": self.graph,
+                    "ref_name": self.reference,               
+                    "ref_file": self.ref_file,
+                    "student_name": self.student,
+                    "student_file": self.student_file,
+                    "horizontal_line": self.horizontalLine,
+                    "line_width": self.lineWidth,
+                    "grid": self.grid
+                },
+            }
+            self.start_button.config(state=tk.DISABLED, text="Analyzing")
+            self.savePDF(user_data)
 
-        
-        user_data = {
-            "headingData" : {
-                "project_name": self.project_name,
-                "project_creator": self.project_creator
-            },
-            "informationData": {
-                "height": self.height_var.get(),
-                "weight" : self.weight_var.get(),
-                "student_name": self.student_name_var.get()
-            } ,
-            "visualizationData": {
-                "categories": self.chosen_columns,
-                "scenario": self.scenario_name_var.get(),
-                "duration": self.duration_var.get(),
-                "total_frames": self.refrence_excel_widget.total_frame,
-                "starting_time": self.refrence_excel_widget.time_slider_widget.slider.get(),
-                "frame_rate": self.refrence_excel_widget.getFrameRate(),
-                "Graph_type": self.graph_var.get(),
-                "ref_name": self.refrence_name_var.get(),               
-                "ref_file": self.refrence_excel_widget.file_path,
-                "student_name": self.student_name_var.get(),
-                "student_file": self.student_excel_widget.get_file_path()
-            },
-        }
- 
-        analyze(user_data)
+    def savePDF(self, user_data:list):
+        file_path = filedialog.asksaveasfilename(title="Save your PDF file as", defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
+        if file_path:
+            
+            pdf_thread = threading.Thread(target=analyze, args=(user_data,file_path,))
+            pdf_thread.start()
+            print("PDF generation started.")
+            pdf_thread.join()
+            self.start_button.config(state=tk.NORMAL, text="Analyze")
+            open_pdf(file_path)
 
-        # Switch to the DataVisualization page and pass the data array
-        # self.master.show_visualize_data()
-
+def open_pdf(file_path):
+    if platform.system() == "Darwin":       # macOS
+        subprocess.call(('open', file_path))
+    elif platform.system() == "Windows":    # Windows
+        os.startfile(file_path)
+    else:                                   # Linux variants
+        subprocess.call(('xdg-open', file_path))
 
 SpreadsheetData = {
     "Segment Orientation - Quat": [

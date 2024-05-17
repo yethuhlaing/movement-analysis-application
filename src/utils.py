@@ -1,9 +1,6 @@
 import datetime
-import pandas as pd
 import matplotlib.pyplot as plt
-import json
-import pickle
-import tkinter as tk
+from tkinter import messagebox
 import os
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 STYLE_SHEETS = plt.style.available
@@ -48,3 +45,6 @@ def DeleteTempFiles():
             print(f"Deleted file: {file_path}")
         else:
             print(f"Skipping non-file: {file_path}")
+
+def show_error_message(message):
+    messagebox.showerror("Error", message)

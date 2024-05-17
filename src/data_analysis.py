@@ -22,24 +22,25 @@ def readCategory(frameRate: int, totalFrames: int, file_path:str, category:str, 
 
 
 
-def ComparisionGraph(Graph_type: str, graphFilePath: str,title: str, dataframes: list, dataframe_names: list[str], movement: str, min_critical_value: float, max_critical_value: float, grid_line: bool= False, line_width: float= 1.0 , horizontal_line: bool = False):
+def ComparisionGraph(Graph_type: str, graphFilePath: str,title: str, dataframes: list, dataframe_names: list[str], movement: str, min_critical_value: float, max_critical_value: float, line_width: float, horizontal_line: bool, grid: bool):
     if Graph_type == "Single Graph":
         for (dataframe, dataframe_name) in zip(dataframes, dataframe_names):
-            plt.plot(dataframe.index, dataframe,label='Demo', linewidth=1)
+            plt.plot(dataframe.index, dataframe,label='Demo', linewidth=line_width)
         plt.title(title)
         plt.xlabel("Frames")
         plt.ylabel(movement)
         if horizontal_line == True:
-            plt.axhline(y = max_critical_value, color = 'r', linestyle = '-', label = "maximum threshold")
-            plt.axhline(y = min_critical_value, color = 'g', linestyle = '-', label = "minimum threshold")
-        plt.grid(grid_line)
+            print("Horizonatal line True")
+            plt.axhline(y = max_critical_value, color = 'r', linestyle = '--', label = "maximum threshold")
+            plt.axhline(y = min_critical_value, color = 'g', linestyle = '--', label = "minimum threshold")
+        plt.grid(grid)
         plt.tight_layout()      
         plt.savefig(graphFilePath)
         plt.close()
     else:
         fig, axes = plt.subplots(1, len(dataframes), sharey=True, figsize=(11, 4))
         for count, (dataframe,dataframe_names)  in enumerate(zip(dataframes,dataframe_names)):
-            sns.lineplot(ax=axes[count], x= dataframe.index, y=movement, data=dataframe, linewidth=1)
+            sns.lineplot(ax=axes[count], x= dataframe.index, y=movement, data=dataframe, linewidth=line_width)
             sns.set_theme(style="whitegrid")
             axes[count].set_title(dataframe_names)
         if horizontal_line == True:
@@ -50,7 +51,7 @@ def ComparisionGraph(Graph_type: str, graphFilePath: str,title: str, dataframes:
         plt.ylabel(movement)
         plt.tight_layout()
         plt.legend()
-        plt.grid(grid_line)
+        plt.grid(grid)
         plt.savefig(graphFilePath)
         plt.close()
 
@@ -110,7 +111,6 @@ def SummaryTable(SummaryData: list, rowColor):
 
 
 def outputCriticalValues(StatusDataframe, movement, frameRate):
-    (row, col) = StatusDataframe.shape
     if (StatusDataframe['Status']== "optimal").any():
         Optimal_frame_count = StatusDataframe["Status"].value_counts()["optimal"]
         Optimal_in_second = round(Optimal_frame_count / frameRate, 1)

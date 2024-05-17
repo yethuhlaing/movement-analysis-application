@@ -1,9 +1,6 @@
 import tkinter as tk
-import time
-import threading
 from tkinter import Canvas, ttk, font
 from PIL import Image, ImageTk
-from tkinter import messagebox 
 from utils import *
 
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
@@ -48,17 +45,22 @@ class LandingPage(ttk.Frame):
         # Heading Label
         welcome_label = tk.Label(overlay_canvas, text="Welcome to Movement Analysis!", font=self.heading_font, padx=20,  bg="white")
         welcome_label.pack(pady=50)
-        
+
         # Create three frames
         frame1 = tk.Frame(overlay_canvas, bg="white")
         frame2 = tk.Frame(overlay_canvas, bg="white")
         frame3 = tk.Frame(overlay_canvas, bg="white")
+        frame4 = tk.Frame(overlay_canvas, bg="white")
+        frame5 = tk.Frame(overlay_canvas, bg="white")
+        frame6 = tk.Frame(overlay_canvas, bg="white")
 
         # Pack the frames on the right side
         frame1.pack(fill="x", pady= (90,0))
         frame2.pack(fill="x")
         frame3.pack(fill="x")
-
+        frame4.pack(fill="x")
+        frame5.pack(fill="x")
+        frame6.pack(fill="x")
 
         # Project Name
         self.project_name_entry = ttk.Entry(frame1, width=30)
@@ -73,16 +75,39 @@ class LandingPage(ttk.Frame):
         project_creator_label = tk.Label(frame2, text="Project Creator:", font=self.text_font, bg="white", padx=10, pady=5)
         project_creator_label.pack(side="right")
 
-    
+        # Scenario
+        self.scenario_entry = ttk.Entry(frame3, width=30)
+        self.scenario_entry.pack( side="right")
+        scenario_label = tk.Label(frame3, text="Scenario:", font=self.text_font, bg="white", padx=10, pady=5)
+        scenario_label.pack(side="right")
+
+        # Reference
+        self.reference_entry = ttk.Entry(frame4, width=30)
+        self.reference_entry.pack( side="right")
+        reference_label = tk.Label(frame4, text="Reference Name:", font=self.text_font, bg="white", padx=10, pady=5)
+        reference_label.pack(side="right")
+
+        # Student
+        self.student_entry = ttk.Entry(frame5, width=30)
+        self.student_entry.pack( side="right")
+        student_label = tk.Label(frame5, text="Student Name:", font=self.text_font, bg="white", padx=10, pady=5)
+        student_label.pack(side="right")
+
         # Start Button
-        start_button = tk.Button(frame3, text="Create", bg=COLOR, bd=0,width=20,padx=10 , font=self.button_font, command=self.start_app)
+        start_button = tk.Button(frame6, text="Create", bg=COLOR, bd=0,width=20,padx=10 , font=self.button_font, command=self.start_app)
         start_button.pack(side="right", pady=20)
 
 
     def start_app(self):
         project_name = self.project_name_entry.get()
         project_creator = self.project_creator_entry.get()
-        # Switch to the project creation page and pass the project name
-        self.master.show_second_page(project_name,project_creator)
+        scenario = self.scenario_entry.get()
+        reference = self.reference_entry.get()
+        student = self.student_entry.get()
+        if not project_name and not project_creator:
+            show_error_message("Please enter the details of your project!")
+        else:
+            # Switch to the project creation page and pass the project name
+            self.master.show_second_page(project_name,project_creator, scenario, reference, student)
 
   
