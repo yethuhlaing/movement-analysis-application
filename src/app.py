@@ -16,7 +16,7 @@ class App(tk.Tk):
         self.geometry("%dx%d" % (width, height))
 
         # logo
-        filepath = '../assets/lab-logo.png'
+        filepath = './assets/lab-logo.png'
         p1 = PhotoImage(file=filepath)
         self.iconphoto(False, p1)
 
