@@ -28,30 +28,14 @@ The AIRIDE project develops new learning methods and technologies based on ridin
 - Tkinter library
   
 ## Installation
+## Installation
+To install this version, follow these steps:
 
-Follow these steps to install and set up the project:
+Download the Installer: Go to the [Releases](https://github.com/yethuhlaing/movement-analysis-application/releases)
 
-1. **Clone the Repository:**
-   
-   ```bash
-   git clone https://github.com/yourusername/yourproject.git
+Run the Installer: Double-click the downloaded installer and follow the on-screen instructions.
 
-2. **Create a Virtual Environment:**
-   
-   ```bash
-   python -m venv venv
-   
-   source venv/bin/activate
-   
-3. **Install Dependencies:**
-   
-   ```bash
-   pip install -r requirements.txt
-
-4. **Compile the Application:**
-   
-   ```bash
-   pyinstaller --onefile --paths=path/to/venv/Lib/site-packages app.py
+Complete Installation: Finish the installation process and launch the application via the desktop shortcut.
 
 ## License
 
