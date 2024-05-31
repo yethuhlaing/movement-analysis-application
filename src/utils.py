@@ -2,8 +2,13 @@ import datetime
 import matplotlib.pyplot as plt
 from tkinter import messagebox
 import os
+import re
+
+
 COLOR = '#%02x%02x%02x' % (174, 239, 206)
 STYLE_SHEETS = plt.style.available
+
+
 
 # button_font = font.Font(family="Bookman Old Style", size=10)
 # text_font = font.Font(family="Bookman Old Style", size=10)
@@ -20,9 +25,13 @@ def makeFilePath(filename):
     # Ensure that the temporary folder exists, if not, create it
     if not os.path.exists(temp_dir):
         os.makedirs(temp_dir)
-
-    filepath = os.path.join(temp_dir, filename)
+    sanitized_filename = sanitize_filename(filename)
+    filepath = os.path.join(temp_dir, sanitized_filename)
     return filepath
+
+def sanitize_filename(filename):
+    # Remove invalid characters from the filename
+    return re.sub(r'[<>:"/\\|?*]', '_', filename)
 
 def FindTempFolder():
     current_dir = os.path.abspath(__file__)

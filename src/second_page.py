@@ -1,9 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, font, filedialog
 import pandas as pd
-import subprocess
-import os
-import platform
 import threading
 from generate_pdf import *
 from utils import show_error_message
@@ -16,7 +13,7 @@ class TimeSliderWidget():
 
         self.frames_in_seconds = 0  # Default value, to be set later
 
-        self.result_label = tk.Label(parent, text="Selected Time: 0 seconds", background="white", font=self.text_font)
+        self.result_label = tk.Label(parent, text="Select Starting Time: 0 seconds", background="white", font=self.text_font)
         self.result_label.pack(anchor="w", pady=10)
         self.slider = ttk.Scale(parent, from_=0, to=self.frames_in_seconds, orient="horizontal", length=400)
         self.slider.pack()
@@ -29,7 +26,7 @@ class TimeSliderWidget():
 
     def update_selected_time(self, event):
         selected_time = int(self.slider.get())
-        self.result_label.config(text=f"Selected Time: {selected_time} seconds", font=self.text_font)
+        self.result_label.config(text=f"Selected Starting Time: {selected_time} seconds", font=self.text_font)
 
     
 class ExcelFileInputWidget(tk.Button): 
@@ -248,12 +245,13 @@ class ProjectCreation(ttk.Frame):
         
         # Heading "Duration" with a dropbox
         durationFrame = tk.Frame(middleFrame, bg="white")
-        duration_label = tk.Label(durationFrame, text="Duration", font=self.text_font, bg="white", padx=10, pady=5)
+        duration_label = tk.Label(durationFrame, text="Duration(sec)", font=self.text_font, bg="white", padx=10, pady=5)
         duration_label.pack(side="left")
-        self.duration_var = tk.StringVar(value="")
+        self.duration_var = tk.IntVar()
         duration_entry = ttk.Entry(durationFrame, textvariable=self.duration_var, width=30)
         duration_entry.pack(side="left")
         durationFrame.pack(anchor="w")
+        
 
         graphFrame = tk.Frame(middleFrame, bg="white")
         # Choosing Graph type
@@ -348,10 +346,19 @@ class ProjectCreation(ttk.Frame):
         self.horizontalLine: bool = self.horizontalLine_var.get()
         self.lineWidth: float = self.lineWidth_var.get()
         self.grid: bool= self.grid_var.get()
+        self.downSampled: bool
 
-        if not self.student_file and not self.duration and not self.ref_file:
-            show_error_message("Please fill the information completely!")
+        if self.student_file == None or self.ref_file == None:
+            show_error_message("Please fill in the file Path completely!")
+        elif "downsampled" in self.student_file and not "downsampled" in self.ref_file:
+            show_error_message("Student Downsampled data can only be analyzed with Reference Downsampled data!")
+        elif not "downsampled" in self.student_file and "downsampled" in self.ref_file:
+            show_error_message("Reference Downsampled data can only be analyzed with Student Downsampled data!")
         else:
+            if "downsampled" in self.student_file and "downsampled" in self.ref_file:
+                self.downSampled = True
+            else:
+                self.downSampled = False
             user_data = {
                 "headingData" : {
                     "project_name": self.project_name,
@@ -367,6 +374,7 @@ class ProjectCreation(ttk.Frame):
                     "duration": self.duration,
                     "total_frames": self.total_frame,
                     "starting_time": self.starting_time,
+                    "downSampled": self.downSampled,
                     "frame_rate": self.frame_rate,
                     "Graph_type": self.graph,
                     "ref_name": self.reference,               
@@ -379,26 +387,21 @@ class ProjectCreation(ttk.Frame):
                 },
             }
             self.start_button.config(state=tk.DISABLED, text="Analyzing")
-            self.savePDF(user_data)
 
-    def savePDF(self, user_data:list):
-        file_path = filedialog.asksaveasfilename(title="Save your PDF file as", defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
-        if file_path:
-            
-            pdf_thread = threading.Thread(target=analyze, args=(user_data,file_path,))
-            pdf_thread.start()
-            print("PDF generation started.")
-            pdf_thread.join()
-            self.start_button.config(state=tk.NORMAL, text="Analyze")
-            open_pdf(file_path)
+            self.file_path = filedialog.asksaveasfilename(title="Save your PDF file as", defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
+            if self.file_path:
+                
+                pdf_thread = threading.Thread(target=analyze, args=(user_data,self.file_path,self.start_button))
+                pdf_thread.start()
+                messagebox.showinfo("Information","PDF generation started!")
 
-def open_pdf(file_path):
-    if platform.system() == "Darwin":       # macOS
-        subprocess.call(('open', file_path))
-    elif platform.system() == "Windows":    # Windows
-        os.startfile(file_path)
-    else:                                   # Linux variants
-        subprocess.call(('xdg-open', file_path))
+            else:
+                show_error_message("Please Enter the correct file path!")
+                self.start_button.config(state=tk.NORMAL, text="Analyze")
+
+
+
+
 
 SpreadsheetData = {
     "Segment Orientation - Quat": [
@@ -497,7 +500,7 @@ SpreadsheetData = {
     "Joint Angles ZXY" : [
         "L5S1 Lateral Bending", "L5S1 Axial Bending", "L5S1 Flexion/Extension",
         "L4L3 Lateral Bending", "L4L3 Axial Rotation", "L4L3 Flexion/Extension",
-        "L1T12 Lateral Bending", "L1T12 Axial Rotation", "L1T12 Flexion/Extension",
+        "L1T12 Lateral Bending", "L1T12 Axial Rotation",
         "T9T8 Lateral Bending", "T9T8 Axial Rotation", "T9T8 Flexion/Extension",
         "T1C7 Lateral Bending", "T1C7 Axial Rotation", "T1C7 Flexion/Extension",
         "C1 Head Lateral Bending", "C1 Head Axial Rotation", "C1 Head Flexion/Extension",

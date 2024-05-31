@@ -5,11 +5,15 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.units import inch
 import time
-
+import subprocess
+import os
+import platform
+import tkinter as tk
 HEADING = "Movement Analytics Report"
 LASTHEADING = "Summary Result"
 
-def analyze(user_data: list, file_path: str):
+def analyze(user_data: list, file_path: str, button):
+
     WIDTH, HEIGHT = A4
     # Default Setting should be reset in the looping
     GRAPH_WIDTH = (WIDTH*2/3) - 20
@@ -36,7 +40,7 @@ def analyze(user_data: list, file_path: str):
     c = canvas.Canvas(file_path, pagesize=A4)
 
     # Add the letterhead image
-    img = ImageReader("../assets/letterhead.png")
+    img = ImageReader("./assets/letterhead.png")
     c.drawImage(img, 0, 0, WIDTH, HEIGHT)
 
     # Set font and write text
@@ -60,10 +64,10 @@ def analyze(user_data: list, file_path: str):
     try:
         for category, movementArray in visualizationData["categories"].items():
             for index, movement in enumerate(movementArray):
-                _, _, duration,total_frames, starting_time,frame_rate, Graph_type, ref_name, ref_file, student_name, student_file, horizontal_line, line_width, grid = visualizationData.values()
+                _, _, duration,total_frames, starting_time, downSampled, frame_rate, Graph_type, ref_name, ref_file, student_name, student_file, horizontal_line, line_width, grid = visualizationData.values()
                 print("Total Frames", total_frames)
-                reference_df = readCategory(frame_rate, total_frames, ref_file, category, ["Frame", movement], duration, starting_time)
-                student_df = readCategory(frame_rate, total_frames, student_file,category, ["Frame", movement], duration, starting_time)
+                reference_df = readCategory(downSampled, frame_rate, total_frames, ref_file, category, ["Frame", movement], duration, starting_time)
+                student_df = readCategory(downSampled, frame_rate, total_frames, student_file,category, ["Frame", movement], duration, starting_time)
                 min_value = reference_df.min().min()
                 max_value = reference_df.max().max() 
                 status_df = calculateThreshold(student_df, movement, min_value, max_value)
@@ -85,14 +89,14 @@ def analyze(user_data: list, file_path: str):
 
                     visualCount = 0
 
-                filename = f'{category}-{movement} {Graph_type}'
+                filename = f'{category}-{movement}{Graph_type}'
                 graphFilePath = makeFilePath(filename)
                 title = filename
                 ComparisionGraph(Graph_type, graphFilePath, title, [reference_df, student_df], [ref_name, student_name], movement, min_value, max_value, line_width, horizontal_line, grid)
                 c.drawImage(f"{graphFilePath}.png", GRAPH_X_POSITION, GRAPH_Y_POSITION, GRAPH_WIDTH, GRAPH_HEIGHT)
 
 
-                filename = f'{category}-{movement} Pie Chart'
+                filename = f'{category}-{movement}Pie Chart'
                 pieChartFilePath = makeFilePath(filename)
                 title = filename
                 pieChart(status_df, pieChartFilePath, title)
@@ -121,12 +125,12 @@ def analyze(user_data: list, file_path: str):
         SUMMARY_DATA.insert(0, heading)
         table = SummaryTable(SUMMARY_DATA, TABLE_ROW_COLOR)
         table.wrapOn(c, inch * 8, inch * 8)  
-        table.drawOn(c, inch/4+10, HEIGHT-300) 
+        table.drawOn(c, inch/4+10, HEIGHT-350) 
         
         # End time
         end_time = time.time()
         # Calculate and print the elapsed time
-        elapsed_time = end_time - start_time
+        elapsed_time = (end_time - start_time) / 60
         print("Time taken:", elapsed_time, "seconds")
         
         # Generate PDF
@@ -134,14 +138,24 @@ def analyze(user_data: list, file_path: str):
 
         # Open the PDF file using the default PDF viewer
         DeleteTempFiles()
-        return file_path
+        open_pdf(file_path)
+        SuccessMessage = "PDF is Generated!\nTime taken: {:.2f} minutes".format(elapsed_time)
+        messagebox.showinfo("Completed", SuccessMessage)
+        button.config(state=tk.NORMAL, text="Analyze")
 
     except Exception as e:
         # Handling any other exceptions
         show_error_message(e)
+        print(e)
 
 
-
+def open_pdf(file_path):
+    if platform.system() == "Darwin":       # macOS
+        subprocess.call(('open', file_path))
+    elif platform.system() == "Windows":    # Windows
+        os.startfile(file_path)
+    else:                                   # Linux variants
+        subprocess.call(('xdg-open', file_path))
 
 def GenerateInfoText(Optimal, TooHigh, TooLow, minimum_time, maximum_time):
 
