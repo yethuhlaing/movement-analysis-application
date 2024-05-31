@@ -6,18 +6,47 @@ import seaborn as sns
 matplotlib.use('TkAgg')
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
+def change_Frame_to_Row(number):
+    mutlipleConstant = 10
+    result = (((number + 9) // 10) * 10 // mutlipleConstant) + 2
+    if result == -2:
+        return 0
+    return result
 
-def readCategory(frameRate: int, totalFrames: int, file_path:str, category:str, movement: list, duration: str, startingTime: int = 0):
+def readCategory(downSampled: bool, frameRate: int, totalFrames: int, file_path:str, category:str, movement: list, duration: int, startingTime: int):
     df = pd.read_excel(file_path, header=0, index_col= 0 ,sheet_name = category, usecols = movement)
-    starting_frame = int(startingTime*frameRate)
-    if duration == "":
-        return df.iloc[starting_frame::]
-    required_rows = int(duration)*frameRate
-    ending_frame = int(starting_frame + required_rows)
-    if totalFrames < ending_frame:
-        return df.iloc[starting_frame::]
+
+    if downSampled:
+        print("DownSampled yes")
+        starting_frame = int(startingTime*frameRate)
+        starting_row =change_Frame_to_Row(starting_frame) 
+        if duration == 0:
+            print(starting_row)
+            return df.iloc[starting_row::]
+        required_frame = int(duration*frameRate)
+        ending_frame = starting_frame + required_frame
+        ending_row = change_Frame_to_Row(ending_frame)
+        print(totalFrames)
+        print(starting_frame)
+        print(ending_frame)
+        print(starting_row)
+        print(ending_row)
+        if ending_frame > totalFrames:
+            return df.iloc[starting_row::]
+        else:
+            return df.iloc[starting_row:ending_row]
     else:
-        return df.iloc[starting_frame:ending_frame]
+        print("DownSampled None")
+        starting_frame = int(startingTime*frameRate)
+        if duration == 0:
+            return df.iloc[starting_frame::]
+
+        required_rows = int(duration*frameRate)
+        ending_frame = starting_frame + required_rows
+        if totalFrames < ending_frame:
+            return df.iloc[starting_frame::]
+        else:
+            return df.iloc[starting_frame:ending_frame]
      
 
 
@@ -25,6 +54,8 @@ def readCategory(frameRate: int, totalFrames: int, file_path:str, category:str, 
 def ComparisionGraph(Graph_type: str, graphFilePath: str,title: str, dataframes: list, dataframe_names: list[str], movement: str, min_critical_value: float, max_critical_value: float, line_width: float, horizontal_line: bool, grid: bool):
     if Graph_type == "Single Graph":
         for (dataframe, dataframe_name) in zip(dataframes, dataframe_names):
+            print(dataframe)
+            print(dataframe.index)
             plt.plot(dataframe.index, dataframe,label='Demo', linewidth=line_width)
         plt.title(title)
         plt.xlabel("Frames")
@@ -78,7 +109,6 @@ def pieChart(statusDataframe, pieChartFilePath, title: str):
     plt.axis('equal') 
     plt.title(title)
     plt.tight_layout()
-    plt.legend()
     centre_circle = plt.Circle((0,0),0.70,fc='white')
     fig = plt.gcf()
     plt.legend()
