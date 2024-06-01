@@ -1,5 +1,6 @@
 dataset
 doc
+LICENSE.txt
 
 src/__pycache__/
 src/*.pyc
