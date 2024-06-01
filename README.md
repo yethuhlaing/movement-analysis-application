@@ -28,7 +28,6 @@ The AIRIDE project develops new learning methods and technologies based on ridin
 - Tkinter library
   
 ## Installation
-## Installation
 To install this version, follow these steps:
 
 Download the Installer: Go to the [Releases](https://github.com/yethuhlaing/movement-analysis-application/releases)
@@ -36,6 +35,33 @@ Download the Installer: Go to the [Releases](https://github.com/yethuhlaing/move
 Run the Installer: Double-click the downloaded installer and follow the on-screen instructions.
 
 Complete Installation: Finish the installation process and launch the application via the desktop shortcut.
+
+## Analysis Algorithm
+
+The dataset should be the same format to analyze in this app!
+
+- When Selecting the starting time, the selected time is multiplied by 240, (eg. 2second = 480 frame)
+- If the duration time is 2 seconds , it means 480 frames duration analysis.
+- When the starting time is at 2seconds (480th frame) and the duration is 2seconds(480frames), the ending time is at 4 seconds (960th frames)
+- When the duration is equal 0, it will analyze from the starting frame to the ending frame.
+
+![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/3f4560c4-f618-4cf4-98d4-67b177632030)
+
+- Only the same kind of data can be analyzed. ( Downsampled vs Downsampled )
+- Downsampled data and Actual data cannot be analyzed together.
+
+  ![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/d7516ac0-2b50-4e54-ac59-9a9b78ae5a6c)
+
+- Lowest time means the time at which the value is lowest.
+- Highest time means the time at which the value is highest.
+- Too low means the total duration of being low value compared to the reference.
+- Too High means the total duration of being high value compared to the reference.
+- Optimal means the total duration of being between maximum and minimum value compared to the reference.
+
+## Generated Analysis Report
+
+![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/4a49aaea-c257-4ecc-8561-43be5452e00d)
+![image](https://github.com/yethuhlaing/movement-analysis-application/assets/112906488/b530c6d4-cab5-47ac-8114-104ae489fa26)
 
 ## License
 
